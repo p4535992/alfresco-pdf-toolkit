@@ -1,6 +1,4 @@
-# This project is no longer being maintained.  It does not fully work with the latest versions of Alfresco Share, nor does it currenly work with the Alfresco App Dev Framework (ADF) to my knowledge.  If somebody wants to take over the project, feel free.
-
-alfresco-pdf-toolkit
+alfresco-pdf-toolkit (SDK 3 Version)
 ====================
 
 The new home of the Alfresco PDF Toolkit (replacing the deprecated Google Code project)
@@ -48,3 +46,6 @@ AGPL License.
 iText - Affero GPL 3 (http://itextpdf.com/terms-of-use/agpl.php)
 
 
+## History
+
+2019-06-09 [BETA] Merged additional function from LoftuxLab fork + Update SDK Alfrsco 2.2.0 tp 3.0.1
