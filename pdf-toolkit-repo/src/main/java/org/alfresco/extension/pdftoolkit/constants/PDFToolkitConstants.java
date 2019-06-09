@@ -1,6 +1,7 @@
 package org.alfresco.extension.pdftoolkit.constants;
 
-import com.itextpdf.text.pdf.BaseFont;
+//import com.itextpdf.text.pdf.BaseFont;
+import com.lowagie.text.pdf.BaseFont;
 
 public abstract class PDFToolkitConstants 
 {
