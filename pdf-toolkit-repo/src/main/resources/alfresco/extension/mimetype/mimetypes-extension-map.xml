@@ -1,0 +1,9 @@
+<alfresco-config area="mimetype-map">
+
+	<config evaluator="string-compare" condition="Mimetype Map">
+		<mimetypes>
+		
+		</mimetypes>
+	</config>
+
+</alfresco-config>
