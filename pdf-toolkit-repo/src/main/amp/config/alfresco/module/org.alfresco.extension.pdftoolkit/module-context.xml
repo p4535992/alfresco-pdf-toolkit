@@ -4,6 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 	
 	<!-- Bean action definitions -->
+	<import resource="classpath:alfresco/module/org.alfresco.extension.pdftoolkit/context/naming-providers-context.xml" />
 	<import resource="classpath:alfresco/module/org.alfresco.extension.pdftoolkit/context/alfresco-pdf-toolkit-context.xml" />
 	
 	<!--  iText transformers -->
@@ -17,6 +18,16 @@
 		<property name="models">
 			<list>
 				<value>alfresco/module/org.alfresco.extension.pdftoolkit/model/pdftoolkitModel.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Load the UI customizations -->
+	<bean id="pdftoolkit_configBootstrap" class="org.alfresco.web.config.WebClientConfigBootstrap"
+		init-method="init">
+		<property name="configs">
+			<list>
+				<value>classpath:alfresco/module/org.alfresco.extension.pdftoolkit/ui/web-client-config-custom.xml</value>
 			</list>
 		</property>
 	</bean>
@@ -156,7 +167,19 @@
 				<entry key="4" value="PDFA1B"/>
 			</map>
 		</property>
-	</bean>  
+	</bean>
+	
+   	<!--  PDF Toolkit service, allows PDF actions to be used in Javascript API -->
+    <bean id="pdftoolkit" parent="baseJavaScriptExtension" 
+        class="org.alfresco.extension.pdftoolkit.service.PDFToolkitService">
+        <property name="extensionName">
+            <value>pdftoolkit</value>
+        </property>
+        <property name="serviceRegistry">
+           <ref bean="ServiceRegistry" />
+        </property>
+
+    </bean>   
     
     <bean id="pdftoolkit.properties" parent="common-placeholder-configurer">
         <property name="locations">

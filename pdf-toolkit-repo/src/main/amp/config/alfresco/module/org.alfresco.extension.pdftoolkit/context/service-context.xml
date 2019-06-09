@@ -36,7 +36,20 @@
          </list>
       </property>
    </bean>
-  
+
+   <bean id="transformer.iText.PDFToPDF"
+         class="org.alfresco.extension.pdftoolkit.transformer.ITextTransformerPDFToPDF"
+         parent="baseContentTransformer" >
+      <property name="explicitTransformations">
+         <list>
+            <bean class="org.alfresco.repo.content.transform.ExplictTransformationDetails" >
+               <constructor-arg><value>application/pdf</value></constructor-arg>
+               <constructor-arg><value>application/pdf</value></constructor-arg>
+            </bean>
+         </list>
+      </property>
+   </bean>
+
      <!-- Page count web script -->
     <bean id="webscript.org.alfresco.extension.pdftoolkit.pagecount.get" class="org.alfresco.extension.pdftoolkit.webscripts.GetPageCount" parent="webscript">
 		<property name="serviceRegistry" ref="ServiceRegistry"/>

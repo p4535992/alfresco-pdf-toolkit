@@ -1,5 +1,9 @@
 package org.alfresco.extension.pdftoolkit.service;
 
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,6 +11,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -15,6 +20,8 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,21 +30,36 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.extension.pdftoolkit.constants.PDFToolkitConstants;
 import org.alfresco.extension.pdftoolkit.model.PDFToolkitModel;
+import org.alfresco.extension.pdftoolkit.naming.FileNameProvider;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFAppendActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFCompressActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFEncryptionActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFInsertAtPageActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSignatureActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitAtPageActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFWatermarkActionExecuter;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.template.FreeMarkerProcessor;
 import org.alfresco.repo.template.TemplateNode;
+import org.alfresco.service.ServiceException;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.model.FileExistsException;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.model.FileNotFoundException;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
@@ -48,43 +70,57 @@ import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.TempFileProvider;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFMergerUtility;
 import org.apache.pdfbox.util.Splitter;
+import org.mozilla.javascript.NativeObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.exceptions.InvalidImageException;
+import com.itextpdf.text.exceptions.UnsupportedPdfException;
 import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PRStream;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfCopy;
 import com.itextpdf.text.pdf.PdfDictionary;
 import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfNumber;
+import com.itextpdf.text.pdf.PdfObject;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfSignatureAppearance;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.text.pdf.parser.PdfImageObject;
+import com.itextpdf.text.pdf.security.BouncyCastleDigest;
+import com.itextpdf.text.pdf.security.ExternalDigest;
+import com.itextpdf.text.pdf.security.ExternalSignature;
+import com.itextpdf.text.pdf.security.MakeSignature;
+import com.itextpdf.text.pdf.security.MakeSignature.CryptoStandard;
+import com.itextpdf.text.pdf.security.PrivateKeySignature;
 
 public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToolkitService 
 {
     private final static String MSGID_PAGE_NUMBERING_PATTERN_MULTIPLE="pdftoolkit.split-page-numbering-pattern-multiple";
     private final static String MSGID_PAGE_NUMBERING_PATTERN_SINGLE="pdftoolkit.split-page-numbering-pattern-single";
 	
-	private ServiceRegistry serviceRegistry;
-    private NodeService ns;
-    private ContentService cs;
-    private FileFolderService ffs;
-    private DictionaryService ds;
-    private PersonService ps;
-    private AuthenticationService as;
+	protected ServiceRegistry serviceRegistry;
+	protected NodeService ns;
+	protected ContentService cs;
+	protected FileFolderService ffs;
+	protected DictionaryService ds;
+	protected PersonService ps;
+	protected AuthenticationService as;
+	protected FileNameProvider fileNameProvider; 
     
-    private FreeMarkerProcessor freemarkerProcessor = new FreeMarkerProcessor();
+    protected FreeMarkerProcessor freemarkerProcessor = new FreeMarkerProcessor();
     
     private static Log logger = LogFactory.getLog(PDFToolkitServiceImpl.class);
     
@@ -503,8 +539,13 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
 				stamp = PdfStamper.createSignature(reader, fout, '\0');
 			}
 			PdfSignatureAppearance sap = stamp.getSignatureAppearance();
-			sap.setCrypto(key, chain, null, PdfSignatureAppearance.WINCER_SIGNED);
-
+			
+			//ITEXT 5.5.11
+			final ExternalSignature es = new PrivateKeySignature(key, "SHA-256", "BC");
+	        final ExternalDigest digest = new BouncyCastleDigest();			
+			MakeSignature.signDetached(sap, digest, es, chain, null, null, null, 0, CryptoStandard.CMS);
+			//sap.setCrypto(key, chain, null, PdfSignatureAppearance.WINCER_SIGNED);
+			
 			// set reason for signature and location of signer
 			sap.setReason(reason);
 			sap.setLocation(location);
@@ -576,6 +617,8 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
 		}
 		catch (DocumentException e)
 		{
+			throw new AlfrescoRuntimeException(e.getMessage(), e);
+		} catch (GeneralSecurityException e) {
 			throw new AlfrescoRuntimeException(e.getMessage(), e);
 		}
 		finally
@@ -1252,6 +1295,227 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
         }
         return destinationNode;
 	}
+	
+	@Override
+	public NodeRef compressPDF(NodeRef targetNodeRef, Map<String, Serializable> params)
+    {
+    	  if (serviceRegistry.getNodeService().exists(targetNodeRef) == false)
+          {
+              // node doesn't exist - can't do anything
+              return null;
+          }
+    	  
+    	  ContentReader actionedUponContentReader = getReader(targetNodeRef);
+    	  
+          if (actionedUponContentReader != null)
+          {
+              // Compress the document with the requested options
+        	  Map<String, Object> options = new HashMap<String, Object>();
+              options.put(PARAM_DESTINATION_FOLDER, params.get(PARAM_DESTINATION_FOLDER));
+              options.put(PARAM_COMPRESSION_LEVEL, params.get(PARAM_COMPRESSION_LEVEL));
+              options.put(PARAM_IMAGE_COMPRESSION_LEVEL, params.get(PARAM_IMAGE_COMPRESSION_LEVEL));
+              options.put(PARAM_INPLACE, params.get(PARAM_INPLACE));
+
+              try
+              {
+                  PdfStamper stamper = null;
+                  File tempDir = null;
+                  ContentWriter writer = null;
+
+                  float Factor = 0.5f;
+
+                  switch ((Integer)options.get(PARAM_IMAGE_COMPRESSION_LEVEL))
+                  {
+                      case 9:
+                          Factor = 0.1f;
+                          break;
+                      case 8:
+                          Factor = 0.2f;
+                          break;
+                      case 7:
+                          Factor = 0.3f;
+                          break;
+                      case 6:
+                          Factor = 0.4f;
+                          break;
+                      case 5:
+                          Factor = 0.5f;
+                          break;
+                      case 4:
+                          Factor = 0.6f;
+                          break;
+                      case 3:
+                          Factor = 0.7f;
+                          break;
+                      case 2:
+                          Factor = 0.8f;
+                          break;
+                      case 1:
+                          Factor = 0.9f;
+                          break;
+                  }
+
+                  try
+                  {
+
+                      // get temp file
+                      File alfTempDir = TempFileProvider.getTempDir();
+                      tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+                      tempDir.mkdir();
+                      File file = new File(tempDir, serviceRegistry.getFileFolderService().getFileInfo(targetNodeRef).getName());
+
+                      int compression_level= (Integer)options.get(PARAM_COMPRESSION_LEVEL);
+
+                      Boolean inplace = Boolean.valueOf(String.valueOf(options.get(PARAM_INPLACE)));
+
+                      PdfReader reader = new PdfReader(actionedUponContentReader.getContentInputStream());
+                      Document.compress = true;
+
+                      int n = reader.getXrefSize();
+                      PdfObject object;
+                      PRStream stream;
+                      // Look for image and manipulate image stream
+                      for (int i = 0; i < n; i++) {
+                          object = reader.getPdfObject(i);
+                          if (object == null || !object.isStream())
+                              continue;
+                          stream = (PRStream)object;
+
+                          PdfObject pdfsubtype = stream.get(PdfName.SUBTYPE);
+
+                          if (pdfsubtype != null && pdfsubtype.toString().equals(PdfName.IMAGE.toString())) {
+                              try
+                              {
+                                  PdfImageObject image = new PdfImageObject(stream);
+                                  BufferedImage bi = image.getBufferedImage();
+                                  if (bi == null) continue;
+                                  int width = (int)(bi.getWidth() * Factor);
+                                  int height = (int)(bi.getHeight() * Factor);
+
+                                  BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                                  AffineTransform at = AffineTransform.getScaleInstance(Factor, Factor);
+                                  Graphics2D g = img.createGraphics();
+                                  g.drawRenderedImage(bi, at);
+                                  ByteArrayOutputStream imgBytes = new ByteArrayOutputStream();
+                                  ImageIO.write(img, "JPG", imgBytes);
+
+                                  stream.clear();
+                                  stream.setData(imgBytes.toByteArray(), false, compression_level);
+                                  stream.put(PdfName.TYPE, PdfName.XOBJECT);
+                                  stream.put(PdfName.SUBTYPE, PdfName.IMAGE);
+                                  stream.put(PdfName.FILTER, PdfName.DCTDECODE);
+                                  stream.put(PdfName.WIDTH, new PdfNumber(width));
+                                  stream.put(PdfName.HEIGHT, new PdfNumber(height));
+                                  stream.put(PdfName.BITSPERCOMPONENT, new PdfNumber(8));
+                                  stream.put(PdfName.COLORSPACE, PdfName.DEVICERGB);
+                              }
+                              catch(InvalidImageException e)
+                              {
+                                  continue;
+                              }
+                              catch(UnsupportedPdfException e)
+                              {
+                                  continue;
+                              }
+                              catch(IIOException e)
+                              {
+                                  continue;
+                              }
+
+                          }
+                      }
+
+
+
+                      stamper = new PdfStamper(reader, new FileOutputStream(file), PdfWriter.VERSION_1_7);
+
+                      if(compression_level < 9)
+                      {
+                          stamper.getWriter().setCompressionLevel(compression_level);
+                      }
+                      else
+                      {
+                          stamper.getWriter().setCompressionLevel(9);
+                          stamper.setFullCompression();
+                      }
+
+                      if (logger.isDebugEnabled())
+                      {
+                          logger.debug("Executing: \n" + "   node: " + targetNodeRef + "\n" + "   reader: "
+                                  + actionedUponContentReader + "\n" + "   action: " + this + "\n" + "   compression: " + compression_level);
+                      }
+
+                      int total = reader.getNumberOfPages() +  1;
+                      for (int i = 1; i < total; i++) {
+                          reader.setPageContent(i, reader.getPageContent(i));
+                      }
+
+                      stamper.close();
+
+
+                      // write out to destination
+                      NodeRef destinationNode = createDestinationNode(file.getName(),
+                              (NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+
+                      writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
+
+                      writer.setEncoding(actionedUponContentReader.getEncoding());
+                      writer.setMimetype(MimetypeMap.MIMETYPE_PDF);
+                      writer.putContent(file);
+                      file.delete();
+                      
+                      return destinationNode;
+
+                  }
+                  catch (IOException e)
+                  {
+                      throw new AlfrescoRuntimeException(e.getMessage(), e);
+                  }
+                  catch (DocumentException e)
+                  {
+                      throw new AlfrescoRuntimeException(e.getMessage(), e);
+                  }
+                  finally
+                  {
+                      if (tempDir != null)
+                      {
+                          try
+                          {
+                              tempDir.delete();
+                          }
+                          catch (Exception ex)
+                          {
+                              throw new AlfrescoRuntimeException(ex.getMessage(), ex);
+                          }
+                      }
+
+                      if (stamper != null)
+                      {
+                          try
+                          {
+                              stamper.close();
+                          }
+                          catch (Exception ex)
+                          {
+                              throw new AlfrescoRuntimeException(ex.getMessage(), ex);
+                          }
+                      }
+                  }
+              }
+              catch (AlfrescoRuntimeException e)
+              {
+                  throw new AlfrescoRuntimeException(e.getMessage(), e);
+              }
+          }
+          else
+          {
+              logger.error("Can't execute rule: \n" + "   node: " + targetNodeRef + "\n" + "   reader: "
+                          + actionedUponContentReader + "\n" + "   action: " + this);             
+              return null;
+          }
+          //set a noderef as the result
+          //action.setParameterValue(PARAM_RESULT, actionedUponNodeRef);     
+    }
 
 	private NodeRef subsetPDFDocument(NodeRef targetNodeRef, Map<String, Serializable> params, String pages, boolean delete) 
 	{
@@ -1347,8 +1611,87 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
 	    }
 	    return destinationNode;
 	}
+	
+	@Override
+	public NodeRef collatePDF(NodeRef actionedUponNodeRef, Map<String, Serializable> params)
+    {
+    	if (!serviceRegistry.getNodeService().exists(actionedUponNodeRef)) {
+            // node doesn't exist - can't do anything
+            return null;
+        }
 
-	private ContentReader getReader(NodeRef nodeRef)
+        NodeRef targetNodeRef = getDestinationNodeRef(actionedUponNodeRef,params);
+
+        if (!serviceRegistry.getNodeService().exists(targetNodeRef)) {
+            // target node doesn't exist - can't do anything
+            return null;
+        }
+
+        // Do the work....split the PDF
+        Map<String, Object> options = new HashMap<>();
+        options.put(PARAM_TARGET_NODE, targetNodeRef);
+        options.put(PARAM_DESTINATION_NAME, params.get(PARAM_DESTINATION_NAME));
+        //options.put(PARAM_INPLACE, ruleAction.getParameterValue(PARAM_INPLACE));
+
+        try {
+                   	
+            String destinationFileName = options.get(PARAM_DESTINATION_NAME).toString();
+
+            //actionedUponNodeRef is a file, create a list of all the PDF files contained in the Actioned Upon NodeRef
+            List<NodeRef> pdfFilesToMerge = new ArrayList<NodeRef>();
+            List<FileInfo> filesInFolder = serviceRegistry.getFileFolderService().listFiles(actionedUponNodeRef);
+            for (FileInfo fileInfo : filesInFolder) {
+                NodeRef childFileNodeRef = fileInfo.getNodeRef();
+                String contentType = ((ContentData) serviceRegistry.getNodeService().getProperty(childFileNodeRef, ContentModel.PROP_CONTENT)).getMimetype();
+                if (MimetypeMap.MIMETYPE_PDF.equals(contentType)) {
+                    pdfFilesToMerge.add(childFileNodeRef);
+                }
+            }
+
+            //TODO: add configurable sort parameter or options to sort from the end user interface
+            //sort the list
+            Collections.sort(pdfFilesToMerge, new Comparator<NodeRef>() {
+                @Override
+                public int compare(NodeRef o1, NodeRef o2) {
+                    return serviceRegistry.getFileFolderService().getFileInfo(o1).getName().compareTo(serviceRegistry.getFileFolderService().getFileInfo(o2).getName());
+                }
+            });
+
+            String fileName;
+            if (!StringUtils.isBlank(destinationFileName)) {
+                fileName = String.valueOf(destinationFileName) + ".pdf";
+            } else {
+                fileName = String.valueOf(serviceRegistry.getNodeService().getProperty(actionedUponNodeRef, ContentModel.PROP_NAME)) + ".pdf";
+            }
+
+            List<InputStream> streamsToMerge = new ArrayList<>();
+
+            FileInfo fileInfo = serviceRegistry.getFileFolderService().create(targetNodeRef, fileNameProvider.getFileName(fileName, targetNodeRef), ContentModel.TYPE_CONTENT);
+            NodeRef destinationNode = fileInfo.getNodeRef();
+
+            for (NodeRef nodeRef : pdfFilesToMerge) {
+                streamsToMerge.add(getReader(nodeRef).getContentInputStream());
+            }
+
+            PDFMergerUtility merger = new PDFMergerUtility();
+            merger.addSources(streamsToMerge);
+            ContentWriter writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype(MimetypeMap.MIMETYPE_PDF);
+            merger.setDestinationStream(writer.getContentOutputStream());
+            merger.mergeDocuments();
+            
+            return destinationNode;
+        
+        } catch (AlfrescoRuntimeException e) {
+            throw new AlfrescoRuntimeException(e.getMessage(), e);
+        } catch (COSVisitorException | IOException e) {
+            e.printStackTrace();
+            throw new AlfrescoRuntimeException(e.getMessage(), e);
+        }
+
+    }
+
+	protected ContentReader getReader(NodeRef nodeRef)
     {
 		// first, make sure the node exists
 		if (ns.exists(nodeRef) == false)
@@ -1375,13 +1718,13 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
         
         return contentReader;
     }
-
+	
     /**
      * @param ruleAction
      * @param filename
      * @return
      */
-    private NodeRef createDestinationNode(String filename, NodeRef destinationParent, NodeRef target, boolean inplace)
+    protected NodeRef createDestinationNode(String filename, NodeRef destinationParent, NodeRef target, boolean inplace)
     {
 
     	NodeRef destinationNode;
@@ -1415,7 +1758,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
         return destinationNode;
     }
     
-    private int getInteger(Serializable val)
+    protected int getInteger(Serializable val)
     {
     	if(val == null)
     	{ 
@@ -1431,7 +1774,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
     	}
     }
     
-    private File getTempFile(NodeRef nodeRef)
+    protected File getTempFile(NodeRef nodeRef)
     {
     	File alfTempDir = TempFileProvider.getTempDir();
         File toolkitTempDir = new File(alfTempDir.getPath() + File.separatorChar + nodeRef.getId());
@@ -1599,7 +1942,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
         return filename;
     }
 
-    private String getFilenameSansExt(NodeRef targetNodeRef, String extension)
+    protected String getFilenameSansExt(NodeRef targetNodeRef, String extension)
     {
         String filenameSansExt;
         filenameSansExt = removeExtension(getFilename(targetNodeRef), extension);
@@ -1908,7 +2251,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
      * @param size
      * @param position
      */
-    private void writeAlignedText(PdfContentByte pcb, Rectangle r, Vector<String> tokens, float size, 
+    protected void writeAlignedText(PdfContentByte pcb, Rectangle r, Vector<String> tokens, float size, 
     		String position, int locationX, int locationY)
     {
         // get the dimensions of our 'rectangle' for text
@@ -1975,7 +2318,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
      * @param ref
      * @return
      */
-    private Map<String, Object> buildWatermarkTemplateModel(NodeRef ref)
+    protected Map<String, Object> buildWatermarkTemplateModel(NodeRef ref)
     {
         Map<String, Object> model = new HashMap<String, Object>();
 
@@ -2002,7 +2345,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
      * @param numpages
      * @return
      */
-    private boolean checkPage(String pages, int current, int numpages)
+    protected boolean checkPage(String pages, int current, int numpages)
     {
 
     	
@@ -2060,7 +2403,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
      * @param img
      * @return
      */
-    private float getCenterX(Rectangle r, Image img)
+    protected float getCenterX(Rectangle r, Image img)
     {
         float x = 0;
         float pdfwidth = r.getWidth();
@@ -2078,7 +2421,7 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
      * @param img
      * @return
      */
-    private float getCenterY(Rectangle r, Image img)
+    protected float getCenterY(Rectangle r, Image img)
     {
         float y = 0;
         float pdfheight = r.getHeight();
@@ -2144,4 +2487,516 @@ public class PDFToolkitServiceImpl extends PDFToolkitConstants implements PDFToo
     {
     	this.useEncryptionAspect = useEncryptionAspect;
     }
+
+	public void setFileNameProvider(FileNameProvider fileNameProvider) {
+		this.fileNameProvider = fileNameProvider;
+	}
+
+	// =======================
+	// LOFTUX LAB METHOD ADDED
+	// =======================
+
+	private String PARAM_TARGET = "target";
+	
+
+    public void jsConstructor()
+    {
+    }
+
+
+    public String getClassName()
+    {
+        return "PDFToolkitService";
+    }
+
+
+    /**
+     * Wrapper for the encrypt PDF action. This calls the PDFEncryptionActionExecuter
+     * 
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     * 
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		user-password : "password",
+     *  	owner-password : "password",
+     *  	allow-print : true,
+     *  	allow-copy : true,
+     *  	allow-content-modification : true,
+     *  	allow-annotation-modification : true,
+     *  	allow-form-fill : true,
+     *  	allow-screen-reader : true,
+     *  	allow-degraded-print : true,
+     *  	allow-assembly : true,
+     *  	encryption-level : "0",
+     *  	exclude-metadata : true
+     * 	}
+     * 
+     * For the available options for encryption-level, look at the constraint pdfc-encryptionlevel 
+     * in module-context.xml
+     */
+    public void encryptPDF(NativeObject obj)
+    {
+
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	NodeRef toEncrypt = getActionTargetNode(params);
+    	this.executePDFAction(PDFEncryptionActionExecuter.NAME, params, toEncrypt);
+    }
+
+    /**
+     * Wrapper for the sign PDF action. This calls the PDFSignatureActionExecuter
+     * 
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     * 
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		private-key : "workspace:SpacesStore://node-uuid",
+     * 		location : "location",
+     *  	reason : "reason",
+     *  	key-password : "keypassword",
+     *  	width : "200",
+     *  	height : "50",
+     *  	key-type : "default",
+     *  	alias : "alias",
+     *  	store-password : "storepassword",
+     *  	visibility : "visible",
+     *  	position : "center",
+     *  	location-x : "50",
+     *  	location-y : "50"
+     * 	}
+     * 
+     * For the available options for visibility, look at the constraint pdfc-visibility
+     * in module-context.xml
+     * 
+     * For the available options for key-type, look at the constraint pdfc-keytype
+     * in module-context.xml
+     * 
+     * For the available options for position, look at the constraint pdfc-position
+     * in module-context.xml
+     */
+    public void signPDF(NativeObject obj)
+    {
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	
+    	//check and make sure we have a valid ref for the private key
+    	NodeRef key = getDependentNode(params, PDFToolkitConstants.PARAM_PRIVATE_KEY);
+    	params.put(PDFToolkitConstants.PARAM_PRIVATE_KEY, key);
+
+    	NodeRef toSign = getActionTargetNode(params);
+    	this.executePDFAction(PDFSignatureActionExecuter.NAME, params, toSign);
+    }
+
+    /**
+     * Wrapper for the watermark PDF action. This calls the PDFWatermarkActionExecuter
+     * 
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     * 
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		watermark-image : "workspace:SpacesStore://node-uuid",
+     * 		position : "center",
+     *  	location-x : "50",
+     *  	location-y : "50",
+     *  	watermark-type : "image",
+     *  	watermark-pages : "all",
+     *  	watermark-depth : "under",
+     *  	watermark-text : "Text to use as watermark",
+     *  	watermark-font : "Courier",
+     *  	watermark-size : "18"
+     * 	}
+     * 
+     * For the available options for position, look at the constraint pdfc-position
+     * in module-context.xml
+     * 
+     * For the available options for watermark-type, look at the constraint pdfc-watermarktype
+     * in module-context.xml
+     * 
+     * For the available options for watermark-pages, look at the constraint pdfc-page
+     * in module-context.xml
+     * 
+     * For the available options for watermark-depth, look at the constraint pdfc-depth
+     * in module-context.xml
+     * 
+     * For the available options for watermark-font, look at the constraint pdfc-font
+     * in module-context.xml
+     */
+    public void watermarkPDF(NativeObject obj)
+    {
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	NodeRef toWatermark = getActionTargetNode(params);
+    	
+    	//if this is an image watermark, verify that the node exists and add it to the
+    	//params as a noderef instead of a string
+    	if(params.get(PDFToolkitConstants.PARAM_WATERMARK_TYPE)
+    			.toString().equalsIgnoreCase(PDFToolkitConstants.TYPE_IMAGE))
+    	{
+    		NodeRef image = getDependentNode(params, PDFToolkitConstants.PARAM_WATERMARK_IMAGE);
+    		params.put(PDFToolkitConstants.PARAM_WATERMARK_IMAGE, image);
+    	}
+    	
+    	this.executePDFAction(PDFWatermarkActionExecuter.NAME, params, toWatermark);
+    }
+
+    /**
+     * Wrapper for the compress PDF action. This calls the PDFCompressActionExecuter
+     *
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     *
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		compression-level : 9 ,
+     * 	    image-compression-level : 6
+     * 	}
+     *
+     * Compression levels are 1-9 (low compression - high compression).
+     * Image compression level has biggest impact on Scanned pdf:s, general compression for the
+     * pdf impacts stored fonts etc that are removed.
+     *
+     */
+    public void compressPDF(NativeObject obj)
+    {
+        Map<String, Serializable> params = buildParamMap(obj);
+        NodeRef toCompress = getActionTargetNode(params);
+        this.executePDFAction(PDFCompressActionExecuter.NAME, params, toCompress);
+    }
+
+    /**
+     * Wrapper for the split PDF action. This calls the PDFSplitActionExecuter
+     * 
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     * 
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		split-frequency : "1"
+     * 	}
+     * 
+     */
+    public void splitPDF(NativeObject obj)
+    {
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	NodeRef toSplit = getActionTargetNode(params);
+    	this.executePDFAction(PDFSplitActionExecuter.NAME, params, toSplit);
+    }
+
+    /**
+     * Wrapper for the split at page PDF action. This calls the PDFSplitAtPageActionExecuter
+     * 
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     * 
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		split-at-page : "1"
+     * 	}
+     * 
+     */
+    public void splitPDFAtPage(NativeObject obj)
+    {
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	NodeRef toSplit = getActionTargetNode(params);
+    	this.executePDFAction(PDFSplitAtPageActionExecuter.NAME, params, toSplit);
+    }
+    
+    /**
+     * Wrapper for the append PDF action. This calls the PDFAppendActionExecuter
+     * 
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     * 
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		append-content : "workspace:SpacesStore://node-uuid",
+     * 		destination-name : "new_file_name.pdf"
+     * 	}
+     * 
+     */
+    public void appendPDF(NativeObject obj)
+    {
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	NodeRef appendTo = getActionTargetNode(params);
+    	
+    	//check and make sure we have a valid ref for the pdf to append
+    	NodeRef toAppend = getDependentNode(params, "append-content");
+    	params.put("append-content", toAppend);
+    	
+    	this.executePDFAction(PDFAppendActionExecuter.NAME, params, appendTo);
+    }
+
+    /**
+     * Wrapper for the insert PDF action. This calls the PDFInsertAtPageActionExecuter
+     * 
+     * When used in a JS context, this code expects a JSON object to with the following structure:
+     * 
+     * 	{
+     * 		target : "workspace:SpacesStore://node-uuid",
+     * 		destination-folder : "workspace:SpacesStore://node-uuid",
+     * 		insert-content : "workspace:SpacesStore://node-uuid",
+     * 		destination-name : "new_file_name.pdf",
+     * 		insert-at-page : "1"
+     * 	}
+     * 
+     */
+    public void insertPDF(NativeObject obj)
+    {
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	NodeRef insertInto = getActionTargetNode(params);
+    	
+    	//check and make sure we have a valid ref for the pdf to insert
+    	NodeRef toInsert= getDependentNode(params, PDFToolkitConstants.PARAM_INSERT_CONTENT);
+    	params.put(PDFToolkitConstants.PARAM_INSERT_CONTENT, toInsert);
+    	
+    	this.executePDFAction(PDFInsertAtPageActionExecuter.NAME, params, insertInto);
+    }
+    
+    /**
+     * Executes a specific PDF action called by the service
+     * 
+     * @param name
+     * @param params
+     * @param actioned
+     */
+    private void executePDFAction(String name, Map<String, Serializable> params, NodeRef actioned)
+    {
+    	ActionService actionService = serviceRegistry.getActionService();
+    	Action toExecute = actionService.createAction(name, params);
+    	actionService.executeAction(toExecute, actioned);
+    }
+    
+    /**
+     * Finds a named String parameter and converts it to a NodeRef
+     * 
+     * @param params
+     * @param name
+     * @return
+     */
+    private NodeRef getDependentNode(Map<String, Serializable> params, String name)
+    {
+    	NodeService nodeService = serviceRegistry.getNodeService();
+    	
+    	//grab the target node and make sure it exists
+    	if(params.get(name) == null)
+    	{
+    		throw new ServiceException("Object property " + name + " must be provided");
+    	}
+    	String nodeString = params.get(name).toString();
+
+    	
+    	NodeRef dep = new NodeRef(nodeString);
+    	if(!nodeService.exists(dep))
+    	{
+    		throw new ServiceException("Object property " + name + " must be a valid node reference");
+    	}
+    	
+    	return dep;
+    }
+    
+    /**
+     * Get a NodeRef to the target node, defined by the "node" property of the Javascript object
+     * passed to the service
+     * 
+     * @param params
+     * @return
+     */
+    private NodeRef getActionTargetNode(Map<String, Serializable> params)
+    {
+    	
+    	return getDependentNode(params, PARAM_TARGET);
+    }
+    
+    /**
+     * Build a proper parameters map suitable for passing to the ActionService
+     * 
+     * @param obj
+     * @return
+     */
+    private Map<String, Serializable> buildParamMap(NativeObject obj)
+    {
+    	Map<String, Serializable> params = nativeObjectToMap(obj);
+    	
+    	NodeRef destination = getDependentNode(params, PDFToolkitConstants.PARAM_DESTINATION_FOLDER);
+    	
+    	//add the noderef back to the param map
+    	params.put(PDFToolkitConstants.PARAM_DESTINATION_FOLDER, destination);
+    	
+    	return params;
+    }
+    
+    /**
+     * Can't cast to Map, as Alfresco's Rhino version is WAY out of date and 
+     * NativeObject doesn't implement Map.  So, we do this instead.
+     * 
+     * @param obj
+     */
+    private Map<String, Serializable> nativeObjectToMap(NativeObject obj)
+    {
+    	Map<String, Serializable> map = new HashMap<String, Serializable>();
+    	Object[] keys = obj.getAllIds();
+    	for(Object key : keys)
+    	{
+    		Object value = NativeObject.getProperty(obj, key.toString());
+    		map.put(key.toString(), (Serializable)value);
+    	}
+    	return map;
+    }
+    
+    protected NodeRef getDestinationNodeRef(NodeRef actionedUponNodeRef,Map<String,Serializable> params) {
+        NodeRef targetNodeRef;Serializable targetNodeRefStr = params.get(PARAM_TARGET_NODE);
+        if (targetNodeRefStr != null) {
+            targetNodeRef = (NodeRef) targetNodeRefStr;
+        }else{
+            targetNodeRef = serviceRegistry.getNodeService().getPrimaryParent(actionedUponNodeRef).getParentRef();
+        }
+        return targetNodeRef;
+    }
+    
+    protected File nodeRefToTempFile(NodeRef nodeRef)
+    {
+    	ContentService cs = serviceRegistry.getContentService();
+        File tempFromFile = TempFileProvider.createTempFile("PDFAConverter-", nodeRef.getId()+ ".tmp");
+        ContentReader reader = cs.getReader(nodeRef, ContentModel.PROP_CONTENT);
+        reader.getContent(tempFromFile);
+        return tempFromFile;
+    }
+    
+    /**
+     * Applies a text watermark (current date, user name, etc, depending on
+     * options)
+     * 
+     * @param reader
+     * @param writer
+     * @param options
+     */
+    private void textAction(Action ruleAction, NodeRef actionedUponNodeRef, ContentReader actionedUponContentReader,
+            Map<String, Object> options)
+    {
+
+        PdfStamper stamp = null;
+        File tempDir = null;
+        ContentWriter writer = null;
+        String watermarkText;
+        StringTokenizer st;
+        Vector<String> tokens = new Vector<String>();
+
+        try
+        {
+            File file = getTempFile(actionedUponNodeRef);
+
+            // get the PDF input stream and create a reader for iText
+            PdfReader reader = new PdfReader(actionedUponContentReader.getContentInputStream());
+            stamp = new PdfStamper(reader, new FileOutputStream(file));
+            PdfContentByte pcb;
+
+            // get the PDF pages and position
+            String pages = (String)options.get(PARAM_PAGE);
+            String position = (String)options.get(PARAM_POSITION);
+            String depth = (String)options.get(PARAM_WATERMARK_DEPTH);
+            int locationX = getInteger(ruleAction.getParameterValue(PARAM_LOCATION_X));
+            int locationY = getInteger(ruleAction.getParameterValue(PARAM_LOCATION_Y));
+            Boolean inplace = Boolean.valueOf(String.valueOf(options.get(PARAM_INPLACE)));
+
+            // create the base font for the text stamp
+            BaseFont bf = BaseFont.createFont((String)options.get(PARAM_WATERMARK_FONT), BaseFont.CP1250, BaseFont.EMBEDDED);
+
+
+            // get watermark text and process template with model
+            String templateText = (String)options.get(PARAM_WATERMARK_TEXT);
+            Map<String, Object> model = buildWatermarkTemplateModel(actionedUponNodeRef);
+            StringWriter watermarkWriter = new StringWriter();
+            freemarkerProcessor.processString(templateText, model, watermarkWriter);
+            watermarkText = watermarkWriter.getBuffer().toString();
+
+            // tokenize watermark text to support multiple lines and copy tokens
+            // to vector for re-use
+            st = new StringTokenizer(watermarkText, "\r\n", false);
+            while (st.hasMoreTokens())
+            {
+                tokens.add(st.nextToken());
+            }
+
+            // stamp each page
+            int numpages = reader.getNumberOfPages();
+            for (int i = 1; i <= numpages; i++)
+            {
+                Rectangle r = reader.getPageSizeWithRotation(i);
+
+                // if this is an under-text stamp, use getUnderContent.
+                // if this is an over-text stamp, use getOverContent.
+                if (depth.equals(DEPTH_OVER))
+                {
+                    pcb = stamp.getOverContent(i);
+                }
+                else
+                {
+                    pcb = stamp.getUnderContent(i);
+                }
+
+                // set the font and size
+                float size = Float.parseFloat((String)options.get(PARAM_WATERMARK_SIZE));
+                pcb.setFontAndSize(bf, size);
+
+                // only apply stamp to requested pages
+                if (checkPage(pages, i, numpages))
+                {
+                    writeAlignedText(pcb, r, tokens, size, position, locationX, locationY);
+                }
+            }
+
+            stamp.close();
+
+            // Get a writer and prep it for putting it back into the repo
+            //can't use BasePDFActionExecuter.getWriter here need the nodeRef of the destination
+            NodeRef destinationNode = createDestinationNode(file.getName(), 
+            		(NodeRef)ruleAction.getParameterValue(PARAM_DESTINATION_FOLDER), actionedUponNodeRef, inplace);
+            writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
+            writer.setEncoding(actionedUponContentReader.getEncoding());
+            writer.setMimetype(FILE_MIMETYPE);
+
+            // Put it in the repo
+            writer.putContent(file);
+
+            // delete the temp file
+            file.delete();
+        }
+        catch (IOException e)
+        {
+            throw new AlfrescoRuntimeException(e.getMessage(), e);
+        }
+        catch (DocumentException e)
+        {
+            throw new AlfrescoRuntimeException(e.getMessage(), e);
+        }
+        finally
+        {
+            if (tempDir != null)
+            {
+                try
+                {
+                    tempDir.delete();
+                }
+                catch (Exception ex)
+                {
+                    throw new AlfrescoRuntimeException(ex.getMessage(), ex);
+                }
+            }
+
+            if (stamp != null)
+            {
+                try
+                {
+                    stamp.close();
+                }
+                catch (Exception ex)
+                {
+                    throw new AlfrescoRuntimeException(ex.getMessage(), ex);
+                }
+            }
+        }
+    }
+
+
+
 }

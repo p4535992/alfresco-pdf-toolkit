@@ -53,6 +53,11 @@ public abstract class PDFToolkitConstants
     public static final String PARAM_WATERMARK_TEXT     			= "watermark-text";
     public static final String PARAM_WATERMARK_FONT     			= "watermark-font";
     public static final String PARAM_WATERMARK_SIZE     			= "watermark-size";
+    
+    public static final String PARAM_COMPRESSION_LEVEL    = "compression-level";
+    public static final String PARAM_IMAGE_COMPRESSION_LEVEL    = "image-compression-level";
+    
+    public static final String PARAM_ARCHIVE_LEVEL						  = "archive-level";
 
     public static final String VISIBILITY_HIDDEN        			= "hidden";
     public static final String VISIBILITY_VISIBLE       			= "visible";

@@ -40,6 +40,11 @@ public class PDFSignatureActionExecuter extends BasePDFStampActionExecuter
      * The logger
      */
     private static Log                    logger                   = LogFactory.getLog(PDFSignatureActionExecuter.class);
+
+    /**
+     * Flag for use of "pdft:signed" aspect, enable search by signature metadata
+     */
+    private boolean useAspect									   = true;
     
     /**
      * Constraints

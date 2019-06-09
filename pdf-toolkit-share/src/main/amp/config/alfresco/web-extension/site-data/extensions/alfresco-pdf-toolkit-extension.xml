@@ -123,6 +123,40 @@
 			</configurations>
 		</module>
 		<module>
+			<id>PDF Toolkit Actions UI - Collate</id>
+			<description>Expose the collate action doclib action UI</description>
+			<version>${project.version}</version>
+			<!-- Auto deploy set to true: Loftux-->
+			<auto-deploy>true</auto-deploy>
+			<configurations>
+				<config evaluator="string-compare" condition="DocLibActions">
+					<actions>
+						<action id="pdf-collate"
+								type="javascript"
+								label="actions.pdftoolkit.collatePDF">
+							<param name="function">onActionFormDialog</param>
+							<param name="itemKind">pdf-action</param>
+							<param name="itemId">pdf-collate</param>
+							<param name="mode">create</param>
+							<param name="destination">{node.nodeRef}</param>
+							<param name="successMessage">message.pdf-collate.success</param>
+							<param name="failureMessage">message.pdf-collate.failure</param>
+							<!-- Mimetype evaluator disabled-->
+							<!--<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>-->
+						</action>
+					</actions>
+					<actionGroups>
+						<actionGroup id="folder-browse">
+							<action index="500" id="pdf-collate"/>
+						</actionGroup>
+						<actionGroup id="folder-details">
+							<action index="500" id="pdf-collate"/>
+						</actionGroup>
+					</actionGroups>
+				</config>
+			</configurations>
+		</module>
+		<module>
 			<id>PDF Toolkit Actions UI - Encryption</id>
 			<description>Expose the encryption action doclib action UI</description>
 			<version>${project.version}</version>
@@ -439,6 +473,59 @@
 							<action index="507" id="pdf-rotate"/>
 						</actionGroup>
 					</actionGroups>
+				</config>
+			</configurations>
+		</module>
+		<module>
+			<id>PDF Toolkit Actions UI - Transform to PDF/A</id>
+			<description>Expose the PDF/A transformation action doclib action UI</description>
+			<version>${project.version}</version>
+			<auto-deploy>false</auto-deploy>
+			<configurations>
+				<!-- Share config elements for the doclib actions -->
+				<config evaluator="string-compare" condition="DocLibActions">
+					<actions>
+						<action id="pdf-convert-to-archivable"
+							type="javascript"
+							label="actions.pdftoolkit.convertToArchivable">
+			        		<param name="function">onActionFormDialog</param>
+			        		<param name="itemKind">pdf-action</param>
+			        		<param name="itemId">pdf-convert-to-archivable</param>
+			        		<param name="mode">create</param>
+			        		<param name="destination">{node.nodeRef}</param>
+			        		<param name="successMessage">message.convert-to-archivable.success</param>
+			        		<param name="failureMessage">message.convert-to-archivable.failure</param>
+			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
+						</action>
+					</actions>
+					<actionGroups>
+						<actionGroup id="document-browse">
+							<action index="508" id="pdf-convert-to-archivable"/>
+						</actionGroup>
+						<actionGroup id="document-details">
+							<action index="508" id="pdf-convert-to-archivable"/>
+						</actionGroup>
+					</actionGroups>
+				</config>
+			</configurations>
+		</module>
+
+		<module>
+			<id>PDF Toolkit Advanced Search Extension</id>
+			<description>Advanced Search for PDF toolkit</description>
+			<version>${project.version}</version>
+			<auto-deploy>false</auto-deploy>
+			<configurations>
+				<!-- Configure advanced search for pdft:signed aspect in Share -->
+				<config evaluator="string-compare" condition="AdvancedSearch">
+					<advanced-search>
+						<forms>
+							<form labelId="pdftoolkit.aspect.signed.search.type"
+								  descriptionId="pdftoolkit.aspect.signed.search.description" id="signedpdfsearch">cm:content</form>
+							<form labelId="pdftoolkit.aspect.encrypted.search.type"
+								  descriptionId="pdftoolkit.aspect.encrypted.search.description" id="encryptedpdfsearch">cm:content</form>
+						</forms>
+					</advanced-search>
 				</config>
 			</configurations>
 		</module>

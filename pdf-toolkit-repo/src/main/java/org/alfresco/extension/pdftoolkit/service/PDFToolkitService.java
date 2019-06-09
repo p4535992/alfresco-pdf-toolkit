@@ -113,4 +113,20 @@ public interface PDFToolkitService
      * @return a NodeRef pointing to the rotated PDF
      */
     public NodeRef rotatePDF(NodeRef targetNodeRef, Map<String, Serializable> params);
+    
+    /**
+     * Compress a PDF Document
+     * @param targetNodeRef
+     * @param params
+     * @return
+     */
+    public NodeRef compressPDF(NodeRef targetNodeRef,Map<String,Serializable> params);
+    
+    /**
+     * Collate a PDF Document
+     * @param targetNodeRef
+     * @param params
+     * @return
+     */
+    public NodeRef collatePDF(NodeRef targetNodeRef,Map<String,Serializable> params);
 }
