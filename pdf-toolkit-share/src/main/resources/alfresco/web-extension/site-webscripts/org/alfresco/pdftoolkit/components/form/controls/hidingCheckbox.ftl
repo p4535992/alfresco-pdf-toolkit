@@ -3,7 +3,7 @@ This control will hide the dependent controls injected via the
 control parameters in the form config by hiding the div {field.name}-control
 -->
 <#assign hideProperties=field.control.params.hideProperties>
-
+<@script src="${url.context}/res/pdftoolkit/components/doclib/pdftoolkit-doclib-actions.js" />
 <div class="form-field" id="${field.name}-control">
 	<#if form.mode == "view">
 		<!#-- this control should not be used in view mode -->

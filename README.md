@@ -50,8 +50,12 @@ Mozilla Public License Version 2.0
 
 ## History
 
-2019-06-09 [BETA] Merged additional function from LoftuxLab fork (https://github.com/loftuxab/alfresco-pdf-toolkit) 
-2019-06-10 [BETA] Update SDK Alfresco 2.2.0 to 3.0.1 + Build with both AMP and JAR
-2019-06-10 [BETA] Replace ITEXT with OpenPDF (https://github.com/LibrePDF/OpenPDF)
-2019-06-11 [BETA] Merged additional function from KeeSoft fork (https://github.com/keensoft/alfresco-pdf-toolkit-actions)
-2019-06-11 [BETA] Various update and clean of the code
+* 2019-06-09 [BETA] Merged additional function from LoftuxLab fork (https://github.com/loftuxab/alfresco-pdf-toolkit) 
+
+* 2019-06-10 [BETA] Update SDK Alfresco 2.2.0 to 3.0.1 + Build with both AMP and JAR
+
+* 2019-06-10 [BETA] Replace ITEXT with OpenPDF (https://github.com/LibrePDF/OpenPDF)
+
+* 2019-06-11 [BETA] Merged additional function from KeeSoft fork (https://github.com/keensoft/alfresco-pdf-toolkit-actions)
+
+* 2019-06-11 [BETA] Various update and clean of the code

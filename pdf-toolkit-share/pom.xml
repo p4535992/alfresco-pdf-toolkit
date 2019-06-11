@@ -343,9 +343,14 @@
 		the resources over or not.
 		-->
 		<resources>
-		    <!-- Filter the resource files in this project and do property substitutions -->  
-
-			<!-- Esclusione file autogenerati da Eclipse e Esclusione file che utilizzano marcatori simili a quelli usati da maven  -->			
+			<!-- Filter the resource files in this project and do property substitutions -->
+		    <!--
+		    <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+            -->
+			<!-- Esclusione file autogenerati da Eclipse e Esclusione file che utilizzano marcatori simili a quelli usati da maven  -->						
 			<resource>
 				<directory>src/main/resources</directory>
 				<targetPath>${project.build.directory}</targetPath>
@@ -354,7 +359,8 @@
 					<exclude>**/*.jsfdia</exclude>
 					<exclude>**/*.ftl</exclude>
 					<exclude>**/*.jasper</exclude>
-					<exclude>**/*.ks</exclude>					
+					<exclude>**/*.ks</exclude>
+					<exclude>**/*.png</exclude>					
 				</excludes>
 			</resource>
 			<!-- Inclusione delle risorse che utilizzano marcatori simili a quelli usati da maven mettendo il filtering a false, cosi' i tag non vengono rimpiazzati -->			 
@@ -366,6 +372,7 @@
 					<include>**/*.ftl</include>
 					<include>**/*.jasper</include>
 					<include>**/*.ks</include>
+					<include>**/*.png</include>
 				</includes>
 			</resource>
 		</resources>

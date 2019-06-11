@@ -1,5 +1,5 @@
 <#include "/org/alfresco/components/form/controls/common/utils.inc.ftl" />
-
+<@script src="${url.context}/res/pdftoolkit/components/doclib/pdftoolkit-doclib-actions.js" />
 <#if field.control.params.showSelectValues??>
 	<#assign selectValues = field.control.params.showSelectValues?split(";")>
 </#if>

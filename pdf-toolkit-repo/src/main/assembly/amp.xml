@@ -67,15 +67,38 @@
     </files>
 
     <fileSets>
-        <!-- Anything in the assembly/web directory will end up in the /web directory in the AMP -->
+        <!-- Anything in the assembly/web directory will end up in the /web directory in the AMP -->		
         <fileSet>
             <directory>src/main/assembly/web</directory>
             <outputDirectory>web</outputDirectory>
-            <filtered>true</filtered> <!-- Will filter files and substitute POM props such as for example ${project.name} -->
+            <filtered>true</filtered>
             <excludes>
                 <exclude>README.md</exclude>
             </excludes>
         </fileSet>
+        <!--
+		<fileSet>
+            <directory>src/main/resources/META-INF/resources</directory>
+            <outputDirectory>web</outputDirectory>
+            <filtered>true</filtered>
+            <excludes>
+				<exclude>**/*.jsfdia</exclude>
+				<exclude>**/*.ftl</exclude>
+				<exclude>**/*.jasper</exclude>
+				<exclude>**/*.ks</exclude>
+            </excludes>
+        </fileSet>
+		<fileSet>
+            <directory>src/main/resources/META-INF/resources</directory>
+            <outputDirectory>web</outputDirectory>
+        	<filtered>false</filtered>
+			<includes>
+				<include>**/*.ftl</include>
+				<include>**/*.jasper</include>
+				<include>**/*.ks</include>
+			</includes>
+        </fileSet>
+		-->
         <!-- Esclusione file autogenerati da Eclipse e Esclusione file che utilizzano marcatori simili a quelli usati da maven  -->
         <fileSet>
             <directory>src/main/resources</directory>
@@ -83,11 +106,11 @@
             <filtered>true</filtered> <!-- Will filter files and substitute POM props such as for example ${project.name} -->
             <excludes>
                 <exclude>src/main/resources/alfresco/module/${project.artifactId}/module.properties</exclude>
-                <exclude>src/main/resources/META-INF/*</exclude>
 				<exclude>**/*.jsfdia</exclude>
 				<exclude>**/*.ftl</exclude>
 				<exclude>**/*.jasper</exclude>
 				<exclude>**/*.ks</exclude>
+				<exclude>**/*.png</exclude>
             </excludes>
         </fileSet>
         <!-- Inclusione delle risorse che utilizzano marcatori simili a quelli usati da maven mettendo il filtering a false, cosi' i tag non vengono rimpiazzati -->
@@ -96,12 +119,12 @@
             <outputDirectory>config</outputDirectory>       
         	<filtered>false</filtered>
 			<includes>
-				<include>src/main/resources/META-INF/*</include>
 				<include>**/*.ftl</include>
 				<include>**/*.jasper</include>
 				<include>**/*.ks</include>
+				<include>**/*.png</include>
 			</includes>
-        </fileSet>        
+        </fileSet>                
         <!-- the following file set includes the JAR artifact built by the package goal -->
         <!--  
         <fileSet>

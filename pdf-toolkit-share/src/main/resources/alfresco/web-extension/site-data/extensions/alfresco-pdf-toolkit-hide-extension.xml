@@ -3,7 +3,7 @@
 		<module>
 			<id>PDF Toolkit Hide Actions UI</id>
 			<version>1.0</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="group.module.evaluator">
 				<params>
 				    <!-- Include below a group name for which display PDF Toolkit actions -->
@@ -18,80 +18,84 @@
 					<actionGroups>
 
 						<actionGroup id="document-browse">
-							<action index="505" id="pdf-signature" appendEvaluators="true">
+							<action index="505" id="pdf-signature" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="506" id="pdf-watermark" appendEvaluators="true">
+							<action index="506" id="pdf-watermark" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="500" id="pdf-append" appendEvaluators="true">
+							<action index="500" id="pdf-append" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="508" id="pdf-encryption" appendEvaluators="true">
+							<action index="508" id="pdf-encryption" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="509" id="pdf-decryption" appendEvaluators="true">
+							<action index="509" id="pdf-decryption" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="502" id="pdf-insert-at-page" appendEvaluators="true">
+							<action index="502" id="pdf-insert-at-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="503" id="pdf-split" appendEvaluators="true">
+							<action index="503" id="pdf-split" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="504" id="pdf-split-at-page" appendEvaluators="true">
+							<action index="504" id="pdf-split-at-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="501" id="pdf-delete-page" appendEvaluators="true">
+							<action index="501" id="pdf-delete-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="510" id="pdf-extract-page" appendEvaluators="true">
+							<action index="510" id="pdf-extract-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="507" id="pdf-rotate" appendEvaluators="true">
+							<action index="507" id="pdf-rotate" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
 						</actionGroup>
 						
 						<actionGroup id="document-details">
-							<action index="505" id="pdf-signature" appendEvaluators="true">
+							<action index="505" id="pdf-signature" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="506" id="pdf-watermark" appendEvaluators="true">
+							<action index="506" id="pdf-watermark" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="500" id="pdf-append" appendEvaluators="true">
+							<action index="500" id="pdf-append" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="508" id="pdf-encryption" appendEvaluators="true">
+							<action index="508" id="pdf-encryption" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="509" id="pdf-decryption" appendEvaluators="true">
+							<action index="509" id="pdf-decryption" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="502" id="pdf-insert-at-page" appendEvaluators="true">
+							<action index="502" id="pdf-insert-at-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="503" id="pdf-split" appendEvaluators="true">
+							<action index="503" id="pdf-split" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="504" id="pdf-split-at-page" appendEvaluators="true">
+							<action index="504" id="pdf-split-at-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="501" id="pdf-delete-page" appendEvaluators="true">
+							<action index="501" id="pdf-delete-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="510" id="pdf-extract-page" appendEvaluators="true">
+							<action index="510" id="pdf-extract-page" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
-							<action index="507" id="pdf-rotate" appendEvaluators="true">
+							<action index="507" id="pdf-rotate" appendEvaluators="true" subgroup="110">
 								<evaluator>evaluator.doclib.action.disableAction</evaluator>
 							</action>
 						</actionGroup>
 
 					</actionGroups>
 				</config>
-
+				<config evaluator="string-compare" condition="DocLibCustom">
+					<dependencies>
+						<js src="pdftoolkit/components/doclib/pdftoolkit-doclib-actions.js" />
+					</dependencies>
+				</config>
 			</configurations>
 		</module>
 	</modules>
