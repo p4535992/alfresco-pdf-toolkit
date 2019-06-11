@@ -11,12 +11,18 @@ import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.RandomAccessFileOrArray;
-import com.itextpdf.text.pdf.codec.TiffImage;
+import com.lowagie.text.Document;
+import com.lowagie.text.Image;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.pdf.RandomAccessFileOrArray;
+
+//import com.itextpdf.text.Document;
+//import com.itextpdf.text.Image;
+//import com.itextpdf.text.PageSize;
+//import com.itextpdf.text.pdf.PdfWriter;
+//import com.itextpdf.text.pdf.RandomAccessFileOrArray;
+//import com.itextpdf.text.pdf.codec.TiffImage;
 
 public class ITextTransformerTIFFToPDF extends AbstractContentTransformer2 {
 
@@ -68,6 +74,9 @@ public class ITextTransformerTIFFToPDF extends AbstractContentTransformer2 {
 		//open the doc and add the image
 		doc.open();
 		Image tiff = null;
+		
+		//ITEXT 5
+		/*
 		RandomAccessFileOrArray randomAccessFile = new RandomAccessFileOrArray(baos.toByteArray());
 		int pages = TiffImage.getNumberOfPages(randomAccessFile);
 		for (int i = 1; i <= pages; i++) {
@@ -77,7 +86,25 @@ public class ITextTransformerTIFFToPDF extends AbstractContentTransformer2 {
             doc.add(tiff);
             doc.newPage();
         }
+        */
+
+		//OPENPDF
+	    tiff = Image.getInstance(baos.toByteArray());
+	    int indentation = 0;
+	    float scaler = ((doc.getPageSize().getWidth() - doc.leftMargin()
+	               - doc.rightMargin() - indentation) / tiff.getWidth()) * 100;
+
+	    tiff.scalePercent(scaler);
+	    tiff.setAbsolutePosition(0, 0);
+	    //tiff.scaleAbsoluteHeight(doc.getPageSize().getHeight());
+	    //tiff.scaleAbsoluteWidth(doc.getPageSize().getWidth());	    
+	    //tiff.scaleAbsolute(PageSize.A4.getWidth(), PageSize.A4.getHeight());
+	    tiff.scaleToFit(PageSize.A4.getWidth(), PageSize.A4.getHeight());
+	    //Add image to Document
+	    doc.add(tiff);
+	    //Close Document		
 		doc.close();
+	    pdfWriter.close();
 		out.flush();
 	}
 }

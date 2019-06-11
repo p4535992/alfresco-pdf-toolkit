@@ -8,7 +8,7 @@
 		class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
 		<property name="resourceBundles">
 			<list>
-				<value>alfresco.web-extension.messages.pdftoolkit</value>
+				<value>alfresco.web-extension.messages.pdftoolkit-messages-share</value>
 			</list>
 		</property>
 	</bean>
@@ -41,7 +41,7 @@
 	</bean>
 
 	<!-- Provide extensions config -->
-	<!-- COMMENTED BECAUSE I PREFER TO SET THIS CONFIG UNDE A SPRING SURF EXTENSION -->
+	<!-- COMMENTED BECAUSE I PREFER TO SET THIS CONFIG UNDER A SPRING SURF EXTENSION -->
 	<!-- 
 	<bean id="pdfToolkitClientConfig" class="org.springframework.extensions.config.ConfigBootstrap" init-method="register">
 		<property name="configService" ref="web.config" />

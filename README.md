@@ -38,14 +38,20 @@ Functionality in development:
 
 * Minimally requires Alfresco 3.4 for the repository tier actions, 4.1 for the Share UI components.
 
-LICENSING
+## Build
 
-The Alfresco PDF Toolkit is an unsupported, community developed open source project.  The project code itself is released under the 
-AGPL License.
+You can build the AMP and the JAR module with one maven command:
 
-iText - Affero GPL 3 (http://itextpdf.com/terms-of-use/agpl.php)
+clean package assembly:single install
 
+## LICENSING
+
+Mozilla Public License Version 2.0
 
 ## History
 
-2019-06-09 [BETA] Merged additional function from LoftuxLab fork + Update SDK Alfrsco 2.2.0 tp 3.0.1
+2019-06-09 [BETA] Merged additional function from LoftuxLab fork (https://github.com/loftuxab/alfresco-pdf-toolkit) 
+2019-06-10 [BETA] Update SDK Alfresco 2.2.0 to 3.0.1 + Build with both AMP and JAR
+2019-06-10 [BETA] Replace ITEXT with OpenPDF (https://github.com/LibrePDF/OpenPDF)
+2019-06-11 [BETA] Merged additional function from KeeSoft fork (https://github.com/keensoft/alfresco-pdf-toolkit-actions)
+2019-06-11 [BETA] Various update and clean of the code

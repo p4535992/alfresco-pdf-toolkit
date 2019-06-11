@@ -33,10 +33,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="505" id="pdf-signature"/>
+							<action index="505" id="pdf-signature" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="505" id="pdf-signature"/>
+							<action index="505" id="pdf-signature" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -73,10 +73,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="506" id="pdf-watermark"/>
+							<action index="506" id="pdf-watermark" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="506" id="pdf-watermark"/>
+							<action index="506" id="pdf-watermark" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -113,10 +113,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="500" id="pdf-append"/>
+							<action index="500" id="pdf-append" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="500" id="pdf-append"/>
+							<action index="500" id="pdf-append" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -147,10 +147,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="folder-browse">
-							<action index="500" id="pdf-collate"/>
+							<action index="500" id="pdf-collate" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="folder-details">
-							<action index="500" id="pdf-collate"/>
+							<action index="500" id="pdf-collate" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -187,10 +187,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="508" id="pdf-encryption"/>
+							<action index="508" id="pdf-encryption" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="508" id="pdf-encryption"/>
+							<action index="508" id="pdf-encryption" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -227,10 +227,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="509" id="pdf-decryption"/>
+							<action index="509" id="pdf-decryption" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="509" id="pdf-decryption"/>
+							<action index="509" id="pdf-decryption" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -267,10 +267,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="502" id="pdf-insert-at-page"/>
+							<action index="502" id="pdf-insert-at-page" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="502" id="pdf-insert-at-page"/>
+							<action index="502" id="pdf-insert-at-page" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -307,10 +307,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="503" id="pdf-split"/>
+							<action index="503" id="pdf-split" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="503" id="pdf-split"/>
+							<action index="503" id="pdf-split" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -347,10 +347,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="504" id="pdf-split-at-page"/>
+							<action index="504" id="pdf-split-at-page" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="504" id="pdf-split-at-page"/>
+							<action index="504" id="pdf-split-at-page" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -387,10 +387,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="501" id="pdf-delete-page"/>
+							<action index="501" id="pdf-delete-page" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="501" id="pdf-delete-page"/>
+							<action index="501" id="pdf-delete-page" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -427,10 +427,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="510" id="pdf-extract-page"/>
+							<action index="510" id="pdf-extract-page" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="510" id="pdf-extract-page"/>
+							<action index="510" id="pdf-extract-page" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -467,10 +467,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="507" id="pdf-rotate"/>
+							<action index="507" id="pdf-rotate" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="507" id="pdf-rotate"/>
+							<action index="507" id="pdf-rotate" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>
@@ -508,10 +508,10 @@
 					</actions>
 					<actionGroups>
 						<actionGroup id="document-browse">
-							<action index="508" id="pdf-convert-to-archivable"/>
+							<action index="508" id="pdf-convert-to-archivable" subgroup="110"/>
 						</actionGroup>
 						<actionGroup id="document-details">
-							<action index="508" id="pdf-convert-to-archivable"/>
+							<action index="508" id="pdf-convert-to-archivable" subgroup="110"/>
 						</actionGroup>
 					</actionGroups>
 				</config>

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	
+   	<!--  PDF Toolkit service -->
+    <bean id="org.alfresco.extension.pdf-toolkit-service" 
+        class="org.alfresco.extension.pdftoolkit.service.PDFToolkitServiceOpenPdfImpl">
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+        <property name="createNew" value="${pdftoolkit.createNew}"/>
+        <property name="useEncryptionAspect" value="${pdftoolkit.useEncryptionAspect}"/>
+        <property name="useSignatureAspect" value="${pdftoolkit.useSignatureAspect}"/>
+        <property name="fileNameProvider" ref="defaultExistingFileFileNameProvider"/>
+    </bean> 
+    
+	<bean id="org.alfresco.extension.pdf-toolkit-action" abstract="true" parent="action-executer">
+		<property name="serviceRegistry">
+			<ref bean="ServiceRegistry" />
+		</property>
+		<property name="PDFToolkitService">
+			<ref bean="org.alfresco.extension.pdf-toolkit-service"/>
+		</property>		
+		<!-- most of these PDF actions are only applicable to PDF documents, so lets use a
+		sensible minimum constraint in the applicable types list. -->
+		<property name="applicableTypes">
+            <list>
+                <value>{http://www.alfresco.org/model/content/1.0}content</value>
+            </list>
+        </property>
+	</bean>
+	
+	<!-- pdfsplit -->
+	<bean id="pdf-split"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+	</bean>
+
+   <!-- pdfcompress -->
+   <bean id="pdf-compress"
+         class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFCompressActionExecuter"
+         parent="action-executer" depends-on="pdftoolkit-messages">    
+   </bean>
+
+	<!-- pdfappend -->
+	<bean id="pdf-append"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFAppendActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">		
+	</bean>
+
+	<!-- pdfsplitatapge -->
+	<bean id="pdf-split-at-page"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitAtPageActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+	</bean>
+	
+	<!-- pdfinsertatapge -->
+	<bean id="pdf-insert-at-page"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFInsertAtPageActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+	</bean>
+
+	<!-- pdfwatermark -->
+	<bean id="pdf-watermark"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFWatermarkActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+		<property name="positionConstraint">
+			<ref bean="pdfc-position"/>
+		</property>
+		<property name="pageConstraint">
+			<ref bean="pdfc-page"/>
+		</property>
+		<property name="fontConstraint">
+			<ref bean="pdfc-font"/>
+		</property>
+		<property name="depthConstraint">
+			<ref bean="pdfc-depth"/>
+		</property>
+		<property name="typeConstraint">
+			<ref bean="pdfc-watermarktype"/>
+		</property>
+		<property name="fontSizeConstraint">
+			<ref bean="pdfc-fontsize"/>
+		</property>
+	</bean>
+	
+	<!-- pdfencryption -->
+	<bean id="pdf-encryption"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFEncryptionActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+		<property name="encryptionLevelConstraint">
+			<ref bean="pdfc-encryptionlevel" />
+		</property>
+	</bean>
+	
+	<!-- pdfdecryption -->
+	<bean id="pdf-decryption"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFDecryptionActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+	</bean>
+	
+	<!-- pdfsignature -->
+	<bean id="pdf-signature"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSignatureActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+		<property name="visibilityConstraint">
+			<ref bean="pdfc-visibility"/>
+		</property>
+		<property name="keyTypeConstraint">
+			<ref bean="pdfc-keytype"/>
+		</property>
+		<property name="positionConstraint">
+			<ref bean="pdfc-position"/>
+		</property>
+		<property name="pageConstraint">
+			<ref bean="pdfc-page"/>
+		</property>
+		<!--
+        <property name="useAspect">
+        	<value>true</value>
+        </property>
+        -->
+	</bean>
+	
+	<!-- pdfdelete -->
+	<bean id="pdf-delete-page"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFDeletePageActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+	</bean>
+   
+   <!-- pdfextract -->
+	<bean id="pdf-extract-page"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFExtractPageActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+	</bean>
+	
+   <!-- pdfdelete -->
+	<bean id="pdf-rotate"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFRotateActionExecuter"
+		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
+	</bean>
+	
+
+	<!-- pdf-convert-to-archivable -->
+   
+	<bean id="pdf-convert-to-archivable"
+		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFConvertToArchivableActionExecuter"
+		parent="action-executer" depends-on="pdftoolkit-messages">
+		<property name="serviceRegistry">
+			<ref bean="ServiceRegistry"/>
+		</property>
+        <property name="archiveLevelConstraint">
+			<ref bean="pdfc-archivelevel"/>
+		</property>
+		<!--
+		<property name="jodConverter">
+			<ref bean="jodconverter.shared.instance"/>
+		</property>
+		-->
+	</bean>
+	
+	<!-- Import the swftools transformer worker from the third party subsystem -->
+   <!--
+   	<bean id="jodconverter.shared.instance" class="org.alfresco.repo.management.subsystems.SubsystemProxyFactory">
+      	<property name="sourceApplicationContextFactory">
+        	<ref bean="OOoJodconverter" />
+      	</property>
+      	<property name="sourceBeanName">
+         	<value>jodconverter.shared.instance</value>
+      	</property>
+      	<property name="interfaces">
+         	<list>
+            	<value>org.alfresco.enterprise.repo.content.JodConverter</value>
+         	</list>
+      	</property>
+   	</bean>
+    -->
+
+	<!--<bean id="pdftoolkit-jod" class="org.alfresco.enterprise.repo.content.JodConverterSharedInstance">
+       <property name="officeHome">
+          <value>${jodconverter.officeHome}</value>
+       </property>
+       <property name="maxTasksPerProcess">
+          <value>${jodconverter.maxTasksPerProcess}</value>
+       </property>
+       <property name="taskExecutionTimeout">
+          <value>${jodconverter.taskExecutionTimeout}</value>
+       </property>
+       <property name="taskQueueTimeout">
+          <value>${jodconverter.taskQueueTimeout}</value>
+       </property>
+       <property name="portNumbers">
+          <value>${jodconverter.portNumbers}</value>
+       </property>
+       <property name="templateProfileDir">
+          <value>${jodconverter.templateProfileDir}</value>
+       </property>
+       <property name="enabled">
+          <value>${jodconverter.enabled}</value>
+       </property>
+   </bean>-->
+   
+	<!-- Page count web script -->
+    <bean id="webscript.org.alfresco.extension.pdftoolkit.pagecount.get" class="org.alfresco.extension.pdftoolkit.webscripts.GetPageCount" parent="webscript">
+		<property name="serviceRegistry" ref="ServiceRegistry"/>
+	</bean>
+
+	<bean id="defaultExistingFileFileNameProvider"
+		class="org.alfresco.extension.pdftoolkit.naming.AlfrescoDefaultExistingFileFileNameProvider">
+		<property name="serviceRegistry" ref="ServiceRegistry" />
+	</bean>
+	
+</beans>

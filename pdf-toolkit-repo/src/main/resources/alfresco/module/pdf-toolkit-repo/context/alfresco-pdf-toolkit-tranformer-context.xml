@@ -3,6 +3,54 @@
 
 <beans>
     
+  <!-- 
+  THE FOLLOWING TRASFORMATION ARE DISABLED BECAUSE ALFRESCO 5 IS GOO EBNOUGH
+  IF YOU WANT TO ABILITATE THESE TRANSFORMATION ADD THE FOLLOWING ALFRESCO GLOBAL PROPERTIES
+   -->
+    
+  <!--
+    THE FOLLOWING alfresco-global.properties MUST ALSO BE SET
+    =========================================================
+    
+# ============================
+# TEXT TO PDF
+# ============================
+content.transformer.iText.TextToPdf.priority=50
+content.transformer.iText.TextToPdf.extensions.txt.pdf.supported=true
+content.transformer.iText.TextToPdf.extensions.txt.pdf.priority=50
+content.transformer.iText.TextToPdf.extensions.txt.pdf.maxSourceSizeKBytes=25600
+
+content.transformer.iText.TextToPdf.extensions.csv.pdf.supported=true
+content.transformer.iText.TextToPdf.extensions.csv.pdf.priority=50
+content.transformer.iText.TextToPdf.extensions.csv.pdf.maxSourceSizeKBytes=25600
+
+content.transformer.iText.TextToPdf.extensions.xml.pdf.supported=true
+content.transformer.iText.TextToPdf.extensions.xml.pdf.priority=50
+content.transformer.iText.TextToPdf.extensions.xml.pdf.maxSourceSizeKBytes=25600
+
+
+# ============================
+# TIFF TO PDF
+# ============================
+content.transformer.iText.TiffToPdf.priority=50
+content.transformer.iText.TiffToPdf.extensions.tiff.pdf.supported=true
+content.transformer.iText.TiffToPdf.extensions.tiff.pdf.priority=50
+content.transformer.iText.TiffToPdf.extensions.tiff.pdf.maxSourceSizeKBytes=25600
+
+content.transformer.iText.TiffToPdf.extensions.tif.pdf.supported=true
+content.transformer.iText.TiffToPdf.extensions.tif.pdf.priority=50
+content.transformer.iText.TiffToPdf.extensions.tif.pdf.maxSourceSizeKBytes=25600
+
+# ============================
+# PDF TO PDF
+# ============================
+
+content.transformer.iText.PDFToPDF.extensions.tif.pdf.supported=true
+content.transformer.iText.PDFToPDF.extensions.tif.pdf.priority=50
+content.transformer.iText.PDFToPDF.extensions.tif.pdf.maxSourceSizeKBytes=25600
+
+-->    
+    
    <bean id="transformer.iText.TextToPdf"
          class="org.alfresco.extension.pdftoolkit.transformer.ITextTransformerTextToPDF"
          parent="baseContentTransformer" >
@@ -50,8 +98,4 @@
       </property>
    </bean>
 
-     <!-- Page count web script -->
-    <bean id="webscript.org.alfresco.extension.pdftoolkit.pagecount.get" class="org.alfresco.extension.pdftoolkit.webscripts.GetPageCount" parent="webscript">
-		<property name="serviceRegistry" ref="ServiceRegistry"/>
-	</bean>
 </beans>

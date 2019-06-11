@@ -1,0 +1,98 @@
+<extension>
+	<modules>
+		<module>
+			<id>PDF Toolkit Hide Actions UI</id>
+			<version>1.0</version>
+			<auto-deploy>true</auto-deploy>
+			<evaluator type="group.module.evaluator">
+				<params>
+				    <!-- Include below a group name for which display PDF Toolkit actions -->
+					<groups>GROUP_ALFRESCO_ADMINISTRATORS</groups>
+					<negate>true</negate>
+				</params>
+			</evaluator>
+			<configurations>
+
+				<config evaluator="string-compare" condition="DocLibActions">
+
+					<actionGroups>
+
+						<actionGroup id="document-browse">
+							<action index="505" id="pdf-signature" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="506" id="pdf-watermark" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="500" id="pdf-append" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="508" id="pdf-encryption" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="509" id="pdf-decryption" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="502" id="pdf-insert-at-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="503" id="pdf-split" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="504" id="pdf-split-at-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="501" id="pdf-delete-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="510" id="pdf-extract-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="507" id="pdf-rotate" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+						</actionGroup>
+						
+						<actionGroup id="document-details">
+							<action index="505" id="pdf-signature" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="506" id="pdf-watermark" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="500" id="pdf-append" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="508" id="pdf-encryption" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="509" id="pdf-decryption" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="502" id="pdf-insert-at-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="503" id="pdf-split" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="504" id="pdf-split-at-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="501" id="pdf-delete-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="510" id="pdf-extract-page" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+							<action index="507" id="pdf-rotate" appendEvaluators="true">
+								<evaluator>evaluator.doclib.action.disableAction</evaluator>
+							</action>
+						</actionGroup>
+
+					</actionGroups>
+				</config>
+
+			</configurations>
+		</module>
+	</modules>
+</extension>

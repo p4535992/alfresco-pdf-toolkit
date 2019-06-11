@@ -15,7 +15,9 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
-import com.itextpdf.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfReader;
+
+//import com.itextpdf.text.pdf.PdfReader;
 
 public class GetPageCount extends DeclarativeWebScript 
 {

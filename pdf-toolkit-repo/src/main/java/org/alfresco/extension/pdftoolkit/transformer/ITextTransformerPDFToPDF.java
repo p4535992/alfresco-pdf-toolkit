@@ -1,25 +1,41 @@
 package org.alfresco.extension.pdftoolkit.transformer;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.exceptions.InvalidImageException;
-import com.itextpdf.text.exceptions.UnsupportedPdfException;
-import com.itextpdf.text.pdf.*;
-import com.itextpdf.text.pdf.parser.PdfImageObject;
+//import com.itextpdf.text.Document;
+//import com.itextpdf.text.DocumentException;
+//import com.itextpdf.text.exceptions.InvalidImageException;
+//import com.itextpdf.text.exceptions.UnsupportedPdfException;
+//import com.itextpdf.text.pdf.*;
+//import com.itextpdf.text.pdf.parser.PdfImageObject;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.extension.pdftoolkit.service.PDFToolkitServiceOpenPdfImpl;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.content.transform.AbstractContentTransformer2;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.TransformationOptions;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.util.TempFile;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.exceptions.UnsupportedPdfException;
+import com.lowagie.text.pdf.PRStream;
+import com.lowagie.text.pdf.PdfName;
+import com.lowagie.text.pdf.PdfNumber;
+import com.lowagie.text.pdf.PdfObject;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfStamper;
+import com.lowagie.text.pdf.PdfWriter;
 
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -60,7 +76,7 @@ public class ITextTransformerPDFToPDF extends AbstractContentTransformer2 {
 
             int n = pdfreader.getXrefSize();
             PdfObject object;
-            PRStream stream;
+            PRStream  stream;
             // Look for image and manipulate image stream
             for (int i = 0; i < n; i++) {
                 object = pdfreader.getPdfObject(i);
@@ -73,8 +89,14 @@ public class ITextTransformerPDFToPDF extends AbstractContentTransformer2 {
                 if (pdfsubtype != null && pdfsubtype.toString().equals(PdfName.IMAGE.toString())) {
                     try
                     {
-                        PdfImageObject image = new PdfImageObject(stream);
-                        BufferedImage bi = image.getBufferedImage();
+                    	//ITEXT 5
+                        //PdfImageObject image = new PdfImageObject(stream);
+                        //BufferedImage bi = image.getBufferedImage();
+                    	
+                    	//OPENPDF
+                  	  	File fImage = PDFToolkitServiceOpenPdfImpl.copyToTemporaryFile(stream);                            	  
+                        BufferedImage bi = ImageIO.read(fImage);
+                    	
                         if (bi == null) continue;
                         int width = (int)(bi.getWidth() * Factor);
                         int height = (int)(bi.getHeight() * Factor);
@@ -86,7 +108,7 @@ public class ITextTransformerPDFToPDF extends AbstractContentTransformer2 {
                         ByteArrayOutputStream imgBytes = new ByteArrayOutputStream();
                         ImageIO.write(img, "JPG", imgBytes);
 
-                        stream.clear();
+                        //stream.clear();
                         stream.setData(imgBytes.toByteArray(), false, compression_level);
                         stream.put(PdfName.TYPE, PdfName.XOBJECT);
                         stream.put(PdfName.SUBTYPE, PdfName.IMAGE);
@@ -96,10 +118,11 @@ public class ITextTransformerPDFToPDF extends AbstractContentTransformer2 {
                         stream.put(PdfName.BITSPERCOMPONENT, new PdfNumber(8));
                         stream.put(PdfName.COLORSPACE, PdfName.DEVICERGB);
                     }
-                    catch(InvalidImageException e)
-                    {
-                        continue;
-                    }
+                    //ITEXT 5
+                    //catch(InvalidImageException e)
+                    //{
+                    //    continue;
+                    //}
                     catch(UnsupportedPdfException e)
                     {
                         continue;
@@ -164,4 +187,5 @@ public class ITextTransformerPDFToPDF extends AbstractContentTransformer2 {
             }
         }
     }
+    
 }

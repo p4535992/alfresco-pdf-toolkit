@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.UUID;
 import java.util.Vector;
 
 import javax.imageio.IIOException;
@@ -40,12 +42,14 @@ import org.alfresco.extension.pdftoolkit.model.PDFToolkitModel;
 import org.alfresco.extension.pdftoolkit.naming.FileNameProvider;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFAppendActionExecuter;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFCompressActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFConvertToArchivableActionExecuter;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFEncryptionActionExecuter;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFInsertAtPageActionExecuter;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSignatureActionExecuter;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitActionExecuter;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitAtPageActionExecuter;
 import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFWatermarkActionExecuter;
+import org.alfresco.extension.pdftoolkit.repo.action.executer.PDFConvertToArchivableActionExecuter.ArchiveLevel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -76,11 +80,20 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.pdfbox.examples.pdfa.CreatePDFA;
 import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
+import org.apache.pdfbox.pdmodel.common.PDMetadata;
+import org.apache.pdfbox.pdmodel.graphics.color.PDOutputIntent;
 import org.apache.pdfbox.util.PDFMergerUtility;
 import org.apache.pdfbox.util.Splitter;
 import org.apache.poi.util.TempFile;
+import org.apache.xmpbox.XMPMetadata;
+import org.apache.xmpbox.schema.PDFAIdentificationSchema;
+import org.apache.xmpbox.type.BadFieldValueException;
+import org.apache.xmpbox.xml.XmpSerializationException;
+import org.apache.xmpbox.xml.XmpSerializer;
 import org.mozilla.javascript.NativeObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 
@@ -157,9 +170,25 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
     // when we create a new document, do we actually create a new one, or copy the source?
     private boolean createNew = false;
     
+    /**
+     * The people make mistake so we force the creation of a new version before any modification to the
+     * file for manage roolback
+     * @return
+     */
+    private NodeRef forceCreateNewVersion(NodeRef targetNodeRef){
+    	//SET NEW VERSION BEFORE MAKE ANYTHING
+		serviceRegistry.getVersionService().ensureVersioningEnabled(targetNodeRef, null);
+		if(!ns.hasAspect(targetNodeRef, ContentModel.ASPECT_VERSIONABLE)){
+			ns.addAspect(targetNodeRef, ContentModel.ASPECT_VERSIONABLE, null);
+		}
+		serviceRegistry.getVersionService().createVersion(targetNodeRef, null);
+		return targetNodeRef;
+    }
+    
     @Override
     public NodeRef appendPDF(NodeRef targetNodeRef, Map<String, Serializable> params)
     {
+    	forceCreateNewVersion(targetNodeRef);
     	PDDocument pdf = null;
         PDDocument pdfTarget = null;
         InputStream is = null;
@@ -283,6 +312,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef encryptPDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
 		PdfStamper stamp = null;
         File tempDir = null;
         ContentWriter writer = null;
@@ -381,6 +411,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override 
 	public NodeRef decryptPDF(NodeRef targetNodeRef, Map<String, Serializable> params)
 	{
+		forceCreateNewVersion(targetNodeRef);
 		PdfStamper stamp = null;
         File tempDir = null;
         ContentWriter writer = null;
@@ -464,6 +495,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef signPDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
 		NodeRef privateKey = (NodeRef)params.get(PARAM_PRIVATE_KEY);
 		String location = (String)params.get(PARAM_LOCATION);
 		String position = (String)params.get(PARAM_POSITION);
@@ -671,7 +703,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef watermarkPDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
-
+		forceCreateNewVersion(targetNodeRef);
 		NodeRef destinationNode = null;
 		
         try
@@ -704,6 +736,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef splitPDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
         PDDocument pdf = null;
         InputStream is = null;
         File tempDir = null;
@@ -867,6 +900,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef splitPDFAtPage(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
 		PDDocument pdf = null;
 		InputStream is = null;
 		File tempDir = null;
@@ -1064,6 +1098,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef insertPDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
 		PDDocument pdf = null;
         PDDocument insertContentPDF = null;
         InputStream is = null;
@@ -1211,6 +1246,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef deletePagesFromPDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
 		String pages = String.valueOf(params.get(PARAM_PAGE));
 		return subsetPDFDocument(targetNodeRef, params, pages, true);
 	}
@@ -1218,6 +1254,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef extractPagesFromPDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
 		String pages = String.valueOf(params.get(PARAM_PAGE));
 		return subsetPDFDocument(targetNodeRef, params, pages, false);
 	}
@@ -1225,6 +1262,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef rotatePDF(NodeRef targetNodeRef, Map<String, Serializable> params) 
 	{
+		forceCreateNewVersion(targetNodeRef);
 		InputStream is = null;
         File tempDir = null;
         ContentWriter writer = null;
@@ -1328,232 +1366,352 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	@Override
 	public NodeRef compressPDF(NodeRef targetNodeRef, Map<String, Serializable> params)
     {
-    	  if (serviceRegistry.getNodeService().exists(targetNodeRef) == false)
+	  forceCreateNewVersion(targetNodeRef);
+	  if (serviceRegistry.getNodeService().exists(targetNodeRef) == false)
+      {
+          // node doesn't exist - can't do anything
+          return null;
+      }
+	  
+	  ContentReader actionedUponContentReader = getReader(targetNodeRef);
+	  
+      if (actionedUponContentReader != null)
+      {
+          // Compress the document with the requested options
+    	  Map<String, Object> options = new HashMap<String, Object>();
+          options.put(PARAM_DESTINATION_FOLDER, params.get(PARAM_DESTINATION_FOLDER));
+          options.put(PARAM_COMPRESSION_LEVEL, params.get(PARAM_COMPRESSION_LEVEL));
+          options.put(PARAM_IMAGE_COMPRESSION_LEVEL, params.get(PARAM_IMAGE_COMPRESSION_LEVEL));
+          options.put(PARAM_INPLACE, params.get(PARAM_INPLACE));
+
+          try
           {
-              // node doesn't exist - can't do anything
-              return null;
-          }
-    	  
-    	  ContentReader actionedUponContentReader = getReader(targetNodeRef);
-    	  
-          if (actionedUponContentReader != null)
-          {
-              // Compress the document with the requested options
-        	  Map<String, Object> options = new HashMap<String, Object>();
-              options.put(PARAM_DESTINATION_FOLDER, params.get(PARAM_DESTINATION_FOLDER));
-              options.put(PARAM_COMPRESSION_LEVEL, params.get(PARAM_COMPRESSION_LEVEL));
-              options.put(PARAM_IMAGE_COMPRESSION_LEVEL, params.get(PARAM_IMAGE_COMPRESSION_LEVEL));
-              options.put(PARAM_INPLACE, params.get(PARAM_INPLACE));
+              PdfStamper stamper = null;
+              File tempDir = null;
+              ContentWriter writer = null;
+
+              float Factor = 0.5f;
+
+              switch ((Integer)options.get(PARAM_IMAGE_COMPRESSION_LEVEL))
+              {
+                  case 9:
+                      Factor = 0.1f;
+                      break;
+                  case 8:
+                      Factor = 0.2f;
+                      break;
+                  case 7:
+                      Factor = 0.3f;
+                      break;
+                  case 6:
+                      Factor = 0.4f;
+                      break;
+                  case 5:
+                      Factor = 0.5f;
+                      break;
+                  case 4:
+                      Factor = 0.6f;
+                      break;
+                  case 3:
+                      Factor = 0.7f;
+                      break;
+                  case 2:
+                      Factor = 0.8f;
+                      break;
+                  case 1:
+                      Factor = 0.9f;
+                      break;
+              }
 
               try
               {
-                  PdfStamper stamper = null;
-                  File tempDir = null;
-                  ContentWriter writer = null;
 
-                  float Factor = 0.5f;
+                  // get temp file
+                  File alfTempDir = TempFileProvider.getTempDir();
+                  tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+                  tempDir.mkdir();
+                  File file = new File(tempDir, serviceRegistry.getFileFolderService().getFileInfo(targetNodeRef).getName());
 
-                  switch ((Integer)options.get(PARAM_IMAGE_COMPRESSION_LEVEL))
-                  {
-                      case 9:
-                          Factor = 0.1f;
-                          break;
-                      case 8:
-                          Factor = 0.2f;
-                          break;
-                      case 7:
-                          Factor = 0.3f;
-                          break;
-                      case 6:
-                          Factor = 0.4f;
-                          break;
-                      case 5:
-                          Factor = 0.5f;
-                          break;
-                      case 4:
-                          Factor = 0.6f;
-                          break;
-                      case 3:
-                          Factor = 0.7f;
-                          break;
-                      case 2:
-                          Factor = 0.8f;
-                          break;
-                      case 1:
-                          Factor = 0.9f;
-                          break;
-                  }
+                  int compression_level= (Integer)options.get(PARAM_COMPRESSION_LEVEL);
 
-                  try
-                  {
+                  Boolean inplace = Boolean.valueOf(String.valueOf(options.get(PARAM_INPLACE)));
 
-                      // get temp file
-                      File alfTempDir = TempFileProvider.getTempDir();
-                      tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
-                      tempDir.mkdir();
-                      File file = new File(tempDir, serviceRegistry.getFileFolderService().getFileInfo(targetNodeRef).getName());
+                  PdfReader reader = new PdfReader(actionedUponContentReader.getContentInputStream());
+                  Document.compress = true;
 
-                      int compression_level= (Integer)options.get(PARAM_COMPRESSION_LEVEL);
+                  int n = reader.getXrefSize();
+                  PdfObject object;
+                  PRStream stream;
+                  // Look for image and manipulate image stream
+                  for (int i = 0; i < n; i++) {
+                      object = reader.getPdfObject(i);
+                      if (object == null || !object.isStream())
+                          continue;
+                      stream = (PRStream)object;
 
-                      Boolean inplace = Boolean.valueOf(String.valueOf(options.get(PARAM_INPLACE)));
+                      PdfObject pdfsubtype = stream.get(PdfName.SUBTYPE);
 
-                      PdfReader reader = new PdfReader(actionedUponContentReader.getContentInputStream());
-                      Document.compress = true;
+                      if (pdfsubtype != null && pdfsubtype.toString().equals(PdfName.IMAGE.toString())) {
+                          try
+                          {
+                        	  //ITEXT 5
+                              //PdfImageObject image = new PdfImageObject(stream);
+                        	  //BufferedImage bi = image.getBufferedImage();
+                        	 
+                        	  //OPENPDF
+                        	  File fImage = copyToTemporaryFile(stream);                            	  
+                              BufferedImage bi = ImageIO.read(fImage);
+                              
+                              if (bi == null) continue;
+                              int width = (int)(bi.getWidth() * Factor);
+                              int height = (int)(bi.getHeight() * Factor);
 
-                      int n = reader.getXrefSize();
-                      PdfObject object;
-                      PRStream stream;
-                      // Look for image and manipulate image stream
-                      for (int i = 0; i < n; i++) {
-                          object = reader.getPdfObject(i);
-                          if (object == null || !object.isStream())
+                              BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+                              AffineTransform at = AffineTransform.getScaleInstance(Factor, Factor);
+                              Graphics2D g = img.createGraphics();
+                              g.drawRenderedImage(bi, at);
+                              ByteArrayOutputStream imgBytes = new ByteArrayOutputStream();
+                              ImageIO.write(img, "JPG", imgBytes);
+
+                              //stream.clear();
+                              stream.setData(imgBytes.toByteArray(), false, compression_level);
+                              stream.put(PdfName.TYPE, PdfName.XOBJECT);
+                              stream.put(PdfName.SUBTYPE, PdfName.IMAGE);
+                              stream.put(PdfName.FILTER, PdfName.DCTDECODE);
+                              stream.put(PdfName.WIDTH, new PdfNumber(width));
+                              stream.put(PdfName.HEIGHT, new PdfNumber(height));
+                              stream.put(PdfName.BITSPERCOMPONENT, new PdfNumber(8));
+                              stream.put(PdfName.COLORSPACE, PdfName.DEVICERGB);
+                          }
+                          //catch(InvalidImageException e)
+                          //{
+                          //    continue;
+                          //}
+                          catch(UnsupportedPdfException e)
+                          {
                               continue;
-                          stream = (PRStream)object;
-
-                          PdfObject pdfsubtype = stream.get(PdfName.SUBTYPE);
-
-                          if (pdfsubtype != null && pdfsubtype.toString().equals(PdfName.IMAGE.toString())) {
-                              try
-                              {
-                            	  //ITEXT 5
-                                  //PdfImageObject image = new PdfImageObject(stream);
-                            	  //BufferedImage bi = image.getBufferedImage();
-                            	 
-                            	  //OPENPDF
-                            	  File fImage = copyToTemporaryFile(stream);                            	  
-                                  BufferedImage bi = ImageIO.read(fImage);
-                                  
-                                  if (bi == null) continue;
-                                  int width = (int)(bi.getWidth() * Factor);
-                                  int height = (int)(bi.getHeight() * Factor);
-
-                                  BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                                  AffineTransform at = AffineTransform.getScaleInstance(Factor, Factor);
-                                  Graphics2D g = img.createGraphics();
-                                  g.drawRenderedImage(bi, at);
-                                  ByteArrayOutputStream imgBytes = new ByteArrayOutputStream();
-                                  ImageIO.write(img, "JPG", imgBytes);
-
-                                  //stream.clear();
-                                  stream.setData(imgBytes.toByteArray(), false, compression_level);
-                                  stream.put(PdfName.TYPE, PdfName.XOBJECT);
-                                  stream.put(PdfName.SUBTYPE, PdfName.IMAGE);
-                                  stream.put(PdfName.FILTER, PdfName.DCTDECODE);
-                                  stream.put(PdfName.WIDTH, new PdfNumber(width));
-                                  stream.put(PdfName.HEIGHT, new PdfNumber(height));
-                                  stream.put(PdfName.BITSPERCOMPONENT, new PdfNumber(8));
-                                  stream.put(PdfName.COLORSPACE, PdfName.DEVICERGB);
-                              }
-                              //catch(InvalidImageException e)
-                              //{
-                              //    continue;
-                              //}
-                              catch(UnsupportedPdfException e)
-                              {
-                                  continue;
-                              }
-                              catch(IIOException e)
-                              {
-                                  continue;
-                              }
-
                           }
+                          catch(IIOException e)
+                          {
+                              continue;
+                          }
+
                       }
-
-
-
-                      stamper = new PdfStamper(reader, new FileOutputStream(file), PdfWriter.VERSION_1_7);
-
-                      if(compression_level < 9)
-                      {
-                          stamper.getWriter().setCompressionLevel(compression_level);
-                      }
-                      else
-                      {
-                          stamper.getWriter().setCompressionLevel(9);
-                          stamper.setFullCompression();
-                      }
-
-                      if (logger.isDebugEnabled())
-                      {
-                          logger.debug("Executing: \n" + "   node: " + targetNodeRef + "\n" + "   reader: "
-                                  + actionedUponContentReader + "\n" + "   action: " + this + "\n" + "   compression: " + compression_level);
-                      }
-
-                      int total = reader.getNumberOfPages() +  1;
-                      for (int i = 1; i < total; i++) {
-                          reader.setPageContent(i, reader.getPageContent(i));
-                      }
-
-                      stamper.close();
-
-
-                      // write out to destination
-                      NodeRef destinationNode = createDestinationNode(file.getName(),
-                              (NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
-
-                      writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
-
-                      writer.setEncoding(actionedUponContentReader.getEncoding());
-                      writer.setMimetype(MimetypeMap.MIMETYPE_PDF);
-                      writer.putContent(file);
-                      file.delete();
-                      
-                      return destinationNode;
-
                   }
-                  catch (IOException e)
+
+
+
+                  stamper = new PdfStamper(reader, new FileOutputStream(file), PdfWriter.VERSION_1_7);
+
+                  if(compression_level < 9)
                   {
-                      throw new AlfrescoRuntimeException(e.getMessage(), e);
+                      stamper.getWriter().setCompressionLevel(compression_level);
                   }
-                  catch (DocumentException e)
+                  else
                   {
-                      throw new AlfrescoRuntimeException(e.getMessage(), e);
+                      stamper.getWriter().setCompressionLevel(9);
+                      stamper.setFullCompression();
                   }
-                  finally
-                  {
-                      if (tempDir != null)
-                      {
-                          try
-                          {
-                              tempDir.delete();
-                          }
-                          catch (Exception ex)
-                          {
-                              throw new AlfrescoRuntimeException(ex.getMessage(), ex);
-                          }
-                      }
 
-                      if (stamper != null)
-                      {
-                          try
-                          {
-                              stamper.close();
-                          }
-                          catch (Exception ex)
-                          {
-                              throw new AlfrescoRuntimeException(ex.getMessage(), ex);
-                          }
-                      }
+                  if (logger.isDebugEnabled())
+                  {
+                      logger.debug("Executing: \n" + "   node: " + targetNodeRef + "\n" + "   reader: "
+                              + actionedUponContentReader + "\n" + "   action: " + this + "\n" + "   compression: " + compression_level);
                   }
+
+                  int total = reader.getNumberOfPages() +  1;
+                  for (int i = 1; i < total; i++) {
+                      reader.setPageContent(i, reader.getPageContent(i));
+                  }
+
+                  stamper.close();
+
+
+                  // write out to destination
+                  NodeRef destinationNode = createDestinationNode(file.getName(),
+                          (NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+
+                  writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
+
+                  writer.setEncoding(actionedUponContentReader.getEncoding());
+                  writer.setMimetype(MimetypeMap.MIMETYPE_PDF);
+                  writer.putContent(file);
+                  file.delete();
+                  
+                  return destinationNode;
+
               }
-              catch (AlfrescoRuntimeException e)
+              catch (IOException e)
               {
                   throw new AlfrescoRuntimeException(e.getMessage(), e);
               }
+              catch (DocumentException e)
+              {
+                  throw new AlfrescoRuntimeException(e.getMessage(), e);
+              }
+              finally
+              {
+                  if (tempDir != null)
+                  {
+                      try
+                      {
+                          tempDir.delete();
+                      }
+                      catch (Exception ex)
+                      {
+                          throw new AlfrescoRuntimeException(ex.getMessage(), ex);
+                      }
+                  }
+
+                  if (stamper != null)
+                  {
+                      try
+                      {
+                          stamper.close();
+                      }
+                      catch (Exception ex)
+                      {
+                          throw new AlfrescoRuntimeException(ex.getMessage(), ex);
+                      }
+                  }
+              }
           }
-          else
+          catch (AlfrescoRuntimeException e)
           {
-              logger.error("Can't execute rule: \n" + "   node: " + targetNodeRef + "\n" + "   reader: "
-                          + actionedUponContentReader + "\n" + "   action: " + this);             
-              return null;
+              throw new AlfrescoRuntimeException(e.getMessage(), e);
           }
-          //set a noderef as the result
-          //action.setParameterValue(PARAM_RESULT, actionedUponNodeRef);     
+      }
+      else
+      {
+          logger.error("Can't execute rule: \n" + "   node: " + targetNodeRef + "\n" + "   reader: "
+                      + actionedUponContentReader + "\n" + "   action: " + this);             
+          return null;
+      }
+      //set a noderef as the result
+      //action.setParameterValue(PARAM_RESULT, actionedUponNodeRef);     
     }
 
+	@Override
+	public NodeRef collatePDF(NodeRef targetNodeRef, Map<String, Serializable> params)
+    {		
+    	if (!serviceRegistry.getNodeService().exists(targetNodeRef)) {
+            // node doesn't exist - can't do anything
+            return null;
+        }
+        targetNodeRef = getDestinationNodeRef(targetNodeRef,params);
+        forceCreateNewVersion(targetNodeRef);
+        if (!serviceRegistry.getNodeService().exists(targetNodeRef)) {
+            // target node doesn't exist - can't do anything
+            return null;
+        }
+
+        // Do the work....split the PDF
+        Map<String, Object> options = new HashMap<>();
+        options.put(PARAM_TARGET_NODE, targetNodeRef);
+        options.put(PARAM_DESTINATION_NAME, params.get(PARAM_DESTINATION_NAME));
+        //options.put(PARAM_INPLACE, ruleAction.getParameterValue(PARAM_INPLACE));
+
+        try {
+                   	
+            String destinationFileName = options.get(PARAM_DESTINATION_NAME).toString();
+
+            //actionedUponNodeRef is a file, create a list of all the PDF files contained in the Actioned Upon NodeRef
+            List<NodeRef> pdfFilesToMerge = new ArrayList<NodeRef>();
+            List<FileInfo> filesInFolder = serviceRegistry.getFileFolderService().listFiles(targetNodeRef);
+            for (FileInfo fileInfo : filesInFolder) {
+                NodeRef childFileNodeRef = fileInfo.getNodeRef();
+                String contentType = ((ContentData) serviceRegistry.getNodeService().getProperty(childFileNodeRef, ContentModel.PROP_CONTENT)).getMimetype();
+                if (MimetypeMap.MIMETYPE_PDF.equals(contentType)) {
+                    pdfFilesToMerge.add(childFileNodeRef);
+                }
+            }
+
+            //TODO: add configurable sort parameter or options to sort from the end user interface
+            //sort the list
+            Collections.sort(pdfFilesToMerge, new Comparator<NodeRef>() {
+                @Override
+                public int compare(NodeRef o1, NodeRef o2) {
+                    return serviceRegistry.getFileFolderService().getFileInfo(o1).getName().compareTo(serviceRegistry.getFileFolderService().getFileInfo(o2).getName());
+                }
+            });
+
+            String fileName;
+            if (!StringUtils.isBlank(destinationFileName)) {
+                fileName = String.valueOf(destinationFileName) + ".pdf";
+            } else {
+                fileName = String.valueOf(serviceRegistry.getNodeService().getProperty(targetNodeRef, ContentModel.PROP_NAME)) + ".pdf";
+            }
+
+            List<InputStream> streamsToMerge = new ArrayList<>();
+
+            FileInfo fileInfo = serviceRegistry.getFileFolderService().create(targetNodeRef, fileNameProvider.getFileName(fileName, targetNodeRef), ContentModel.TYPE_CONTENT);
+            NodeRef destinationNode = fileInfo.getNodeRef();
+
+            for (NodeRef nodeRef : pdfFilesToMerge) {
+                streamsToMerge.add(getReader(nodeRef).getContentInputStream());
+            }
+
+            PDFMergerUtility merger = new PDFMergerUtility();
+            merger.addSources(streamsToMerge);
+            ContentWriter writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype(MimetypeMap.MIMETYPE_PDF);
+            merger.setDestinationStream(writer.getContentOutputStream());
+            merger.mergeDocuments();
+            
+            return destinationNode;
+        
+        } catch (AlfrescoRuntimeException e) {
+            throw new AlfrescoRuntimeException(e.getMessage(), e);
+        } catch (COSVisitorException | IOException e) {
+            e.printStackTrace();
+            throw new AlfrescoRuntimeException(e.getMessage(), e);
+        }
+
+    }
+	
+	@Override
+	public NodeRef archivablePDF(NodeRef actionedUponNodeRef, Map<String, Serializable> params)
+    {
+    	if (!serviceRegistry.getNodeService().exists(actionedUponNodeRef)) {
+            // node doesn't exist - can't do anything
+            return null;
+        }
+
+        NodeRef targetNodeRef = getDestinationNodeRef(actionedUponNodeRef,params);
+        
+		//PDFX1A2001,PDFA1A,PDFA1B
+         
+        
+        forceCreateNewVersion(targetNodeRef);
+        if (!serviceRegistry.getNodeService().exists(targetNodeRef)) {
+            // target node doesn't exist - can't do anything
+            return null;
+        }
+        
+        File file = null;
+        File pdfa = null;
+       
+        try {
+        	file =  nodeRefToTempFile(targetNodeRef);
+        	ArchiveLevel archiveLevel = ArchiveLevel.fromValue((String) params.get(PARAM_ARCHIVE_LEVEL));
+			pdfa = convertPdfToPdfA(FileUtils.readFileToByteArray(file),archiveLevel);
+			
+	        ContentWriter writer = cs.getWriter(targetNodeRef, ContentModel.PROP_CONTENT, true);	            
+	        writer.setEncoding(writer.getEncoding());
+	        writer.setMimetype(FILE_MIMETYPE);
+	        // Put it in the repo
+	        writer.putContent(file);
+	        return targetNodeRef;
+		} catch (Exception e) {
+			throw new AlfrescoRuntimeException(e.getMessage(),e);
+		}finally {
+			FileUtils.deleteQuietly(file);
+			FileUtils.deleteQuietly(pdfa);
+		}
+    }
+	
 	private NodeRef subsetPDFDocument(NodeRef targetNodeRef, Map<String, Serializable> params, String pages, boolean delete) 
-	{
+	{		
 		InputStream is = null;
 	    File tempDir = null;
 	    ContentWriter writer = null;
@@ -1647,84 +1805,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	    return destinationNode;
 	}
 	
-	@Override
-	public NodeRef collatePDF(NodeRef actionedUponNodeRef, Map<String, Serializable> params)
-    {
-    	if (!serviceRegistry.getNodeService().exists(actionedUponNodeRef)) {
-            // node doesn't exist - can't do anything
-            return null;
-        }
 
-        NodeRef targetNodeRef = getDestinationNodeRef(actionedUponNodeRef,params);
-
-        if (!serviceRegistry.getNodeService().exists(targetNodeRef)) {
-            // target node doesn't exist - can't do anything
-            return null;
-        }
-
-        // Do the work....split the PDF
-        Map<String, Object> options = new HashMap<>();
-        options.put(PARAM_TARGET_NODE, targetNodeRef);
-        options.put(PARAM_DESTINATION_NAME, params.get(PARAM_DESTINATION_NAME));
-        //options.put(PARAM_INPLACE, ruleAction.getParameterValue(PARAM_INPLACE));
-
-        try {
-                   	
-            String destinationFileName = options.get(PARAM_DESTINATION_NAME).toString();
-
-            //actionedUponNodeRef is a file, create a list of all the PDF files contained in the Actioned Upon NodeRef
-            List<NodeRef> pdfFilesToMerge = new ArrayList<NodeRef>();
-            List<FileInfo> filesInFolder = serviceRegistry.getFileFolderService().listFiles(actionedUponNodeRef);
-            for (FileInfo fileInfo : filesInFolder) {
-                NodeRef childFileNodeRef = fileInfo.getNodeRef();
-                String contentType = ((ContentData) serviceRegistry.getNodeService().getProperty(childFileNodeRef, ContentModel.PROP_CONTENT)).getMimetype();
-                if (MimetypeMap.MIMETYPE_PDF.equals(contentType)) {
-                    pdfFilesToMerge.add(childFileNodeRef);
-                }
-            }
-
-            //TODO: add configurable sort parameter or options to sort from the end user interface
-            //sort the list
-            Collections.sort(pdfFilesToMerge, new Comparator<NodeRef>() {
-                @Override
-                public int compare(NodeRef o1, NodeRef o2) {
-                    return serviceRegistry.getFileFolderService().getFileInfo(o1).getName().compareTo(serviceRegistry.getFileFolderService().getFileInfo(o2).getName());
-                }
-            });
-
-            String fileName;
-            if (!StringUtils.isBlank(destinationFileName)) {
-                fileName = String.valueOf(destinationFileName) + ".pdf";
-            } else {
-                fileName = String.valueOf(serviceRegistry.getNodeService().getProperty(actionedUponNodeRef, ContentModel.PROP_NAME)) + ".pdf";
-            }
-
-            List<InputStream> streamsToMerge = new ArrayList<>();
-
-            FileInfo fileInfo = serviceRegistry.getFileFolderService().create(targetNodeRef, fileNameProvider.getFileName(fileName, targetNodeRef), ContentModel.TYPE_CONTENT);
-            NodeRef destinationNode = fileInfo.getNodeRef();
-
-            for (NodeRef nodeRef : pdfFilesToMerge) {
-                streamsToMerge.add(getReader(nodeRef).getContentInputStream());
-            }
-
-            PDFMergerUtility merger = new PDFMergerUtility();
-            merger.addSources(streamsToMerge);
-            ContentWriter writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
-            writer.setMimetype(MimetypeMap.MIMETYPE_PDF);
-            merger.setDestinationStream(writer.getContentOutputStream());
-            merger.mergeDocuments();
-            
-            return destinationNode;
-        
-        } catch (AlfrescoRuntimeException e) {
-            throw new AlfrescoRuntimeException(e.getMessage(), e);
-        } catch (COSVisitorException | IOException e) {
-            e.printStackTrace();
-            throw new AlfrescoRuntimeException(e.getMessage(), e);
-        }
-
-    }
 
 	protected ContentReader getReader(NodeRef nodeRef)
     {
@@ -2801,6 +2882,19 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
     	actionService.executeAction(toExecute, actioned);
     }
     
+    
+    public void archivablePDF(NativeObject obj)
+    {
+    	Map<String, Serializable> params = buildParamMap(obj);
+    	NodeRef insertInto = getActionTargetNode(params);
+    	
+    	//check and make sure we have a valid ref for the pdf to insert
+    	NodeRef toInsert= getDependentNode(params, PDFToolkitConstants.PARAM_INSERT_CONTENT);
+    	params.put(PDFToolkitConstants.PARAM_INSERT_CONTENT, toInsert);
+    	
+    	this.executePDFAction(PDFConvertToArchivableActionExecuter.NAME, params, insertInto);
+    }
+    
     /**
      * Finds a named String parameter and converts it to a NodeRef
      * 
@@ -3032,8 +3126,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
         }
     }
     
-    private File copyToTemporaryFile(PRStream prs) throws IOException {
-        File tmpFile = TempFile.createTempFile(this.getClass().getSimpleName()+System.currentTimeMillis(), ".tmp");
+    public static File copyToTemporaryFile(PRStream prs) throws IOException {
+        File tmpFile = TempFile.createTempFile(PDFToolkitServiceOpenPdfImpl.class.getSimpleName()+System.currentTimeMillis(), ".tmp");
         logger.debug("Created output temporary buffer " + tmpFile);
 
         ByteArrayInputStream inputStream = null;
@@ -3048,7 +3142,174 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
         }
         return tmpFile;
     }
+    
+	protected File convertPdfToPdfA(final byte[] source,ArchiveLevel archiveLevel) throws Exception {
+		File tempFile = null;       
+		File pdfAFile = null;
+		OutputStream output = null;
+		try {
+			tempFile = TempFileProvider.createTempFile("pre_pdfa", ".pdf");           
+			FileUtils.writeByteArrayToFile(tempFile, source);          
+			pdfAFile = TempFileProvider.createTempFile("digitalSigning-" + System.currentTimeMillis(), ".pdf");
+			//METHOD WITH ITEXT 5
+			/*
+            java.net.URL url = getClass().getResource("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm");
+        	byte[] bytes = IOUtils.toByteArray(url.openStream());
+        	final ICC_Profile icc = ICC_Profile.getInstance(bytes);
 
+            //Reads a PDF document. 
+            PdfReader reader = new PdfReader(source); 
+            //PdfStamper: Applies extra content to the pages of a PDF document. This extra content can be all the objects allowed in 
+            //PdfContentByte including pages from other Pdfs. 
+            //A generic Document class. 
+            Document document = new Document(); 
+            // we create a writer that listens to the document
+            PdfAWriter writer = PdfAWriter.getInstance(document, new FileOutputStream(pdfAFile), PdfAConformanceLevel.PDF_A_1A);       
+            int numberPages = reader.getNumberOfPages(); 
+
+            //PdfDictionary:A dictionary is an associative table containing pairs of objects. 
+            //The first element of each pair is called the key and the second  element is called the value 
+            //<CODE>PdfName</CODE> is an object that can be used as a name in a PDF-file 
+            //PdfDictionary outi = new PdfDictionary(PdfName.OUTPUTINTENT); 
+            //outi.put(PdfName.OUTPUTCONDITIONIDENTIFIER, new PdfString("sRGB IEC61966-2.1")); 
+            //outi.put(PdfName.INFO, new PdfString("sRGB IEC61966-2.1")); 
+            //outi.put(PdfName.S, PdfName.GTS_PDFA1); 
+            //writer.getExtraCatalog().put(PdfName.OUTPUTINTENTS, new PdfArray(outi)); 
+
+            writer.setTagged();
+            writer.createXmpMetadata();
+            document.open(); 
+
+            writer.setOutputIntents("Custom", "", "http://www.color.org", "sRGB IEC61966-2.1", icc);
+
+            //Add pages 
+            PdfImportedPage p = null; 
+            Image image; 
+            for(int i=0; i< numberPages; i++){ 
+            	document.newPage(); 
+                p = writer.getImportedPage(reader, i+1); 
+                image = Image.getInstance(p);
+                // Scale PDF page to fit with PDF/A format
+                image.scaleAbsolute(writer.getPageSize());
+                // Center the image into the PDF/A page
+                image.setAlignment(Element.ALIGN_CENTER);
+
+                // Set the position of the image into the PDF/A page
+                image.setAbsolutePosition(0, 0);
+                document.setMargins(0, 0, 0, 0);
+                document.add(image); 
+            }
+
+            document.close(); 
+            writer.flush();
+
+            return pdfAFile;
+			*/
+			//METHOD WITH PDFBOX 1.8.10
+			//https://apache.googlesource.com/pdfbox/+/4df9353eaac3c4ee2124b09da05312376f021b2c/examples/src/main/java/org/apache/pdfbox/examples/pdfa/CreatePDFA.java
+			PDDocument doc = null;
+			try{
+				doc = PDDocument.load(tempFile);
+			}catch(IOException ex){
+				if(ex.getMessage().contains("expected='endstream'")){
+					//https://issues.apache.org/jira/browse/PDFBOX-1541
+					//https://www.programcreek.com/java-api-examples/?code=jmrozanec/pdf-converter/pdf-converter-master/src/main/java/pdf/converter/txt/TxtCreator.java				
+					File tmpfile = File.createTempFile(String.format("txttmp-%s", UUID.randomUUID().toString()), null);
+					try{
+						org.apache.pdfbox.io.RandomAccessFile raf = new org.apache.pdfbox.io.RandomAccessFile(tmpfile, "rw");
+						doc = PDDocument.loadNonSeq(tmpfile,raf);	   	
+					}finally{
+						FileUtils.deleteQuietly(tmpfile);
+					}
+				}else{
+					throw ex;
+				}
+			}   
+			try
+			{           
+				//	                // load the font from pdfbox.jar
+				//	                InputStream fontStream = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/ttf/ArialMT.ttf");
+				//	                PDFont font = PDTrueTypeFont.loadTTF(doc, fontStream);
+				//	                
+				//	                
+				//	                // create a page with the message where needed
+				//	                PDPageContentStream contentStream = new PDPageContentStream(doc, page);
+				//	                contentStream.beginText();
+				//	                contentStream.setFont( font, 12 );
+				//	                contentStream.moveTextPositionByAmount( 100, 700 );
+				//	                contentStream.drawString( message );
+				//	                contentStream.endText();
+				//	                contentStream.saveGraphicsState();
+				//	                contentStream.close();
+
+				PDDocumentCatalog cat = doc.getDocumentCatalog();
+				PDMetadata metadata = new PDMetadata(doc);
+				cat.setMetadata(metadata);
+
+				XMPMetadata xmp = XMPMetadata.createXMPMetadata();
+				try
+				{
+					PDFAIdentificationSchema pdfaid = xmp.createAndAddPFAIdentificationSchema();
+					pdfaid.setConformance(archiveLevel.getConformance());
+					pdfaid.setPart(archiveLevel.getPart());
+					if(archiveLevel.getAmdId()!=null){
+						pdfaid.setAmd(archiveLevel.getAmdId());
+					}
+					pdfaid.setAboutAsSimple("PDFBox PDFA sample");
+					XmpSerializer serializer = new XmpSerializer();
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					serializer.serialize(xmp, baos, true);
+					metadata.importXMPMetadata( baos.toByteArray() );
+				}
+				catch(BadFieldValueException badFieldexception)
+				{
+					// can't happen here, as the provided value is valid
+				}
+				catch(XmpSerializationException xmpException)
+				{
+					System.err.println(xmpException.getMessage());
+				}
+				//COLOR SPACE BUG
+				InputStream colorProfile = CreatePDFA.class.getResourceAsStream("/org/apache/pdfbox/resources/pdfa/sRGB Color Space Profile.icm");
+				//InputStream colorProfile = getClass().getResourceAsStream("/org/alfresco/plugin/digitalSigning/service/sRGB_CS_profile.icm");
+				// create output intent
+				PDOutputIntent oi = new PDOutputIntent(doc, colorProfile); 
+				oi.setInfo("sRGB IEC61966-2.1"); 
+				oi.setOutputCondition("sRGB IEC61966-2.1");
+				oi.setOutputConditionIdentifier("sRGB IEC61966-2.1"); 
+				oi.setRegistryName("http://www.color.org"); 
+				cat.addOutputIntent(oi);
+
+				doc.save(pdfAFile);				
+			}
+			finally
+			{
+				if( doc != null )
+				{
+					doc.close();
+				}
+			}
+			
+			return pdfAFile;
+		}
+		catch (Exception ex) {
+			logger.error("Can't convert PDF to PDF/A.  Error during conversion to PDF/A.", ex);
+			throw new Exception("Can't convert PDF to PDF/A.  Error during conversion to PDF/A.", ex);
+		}   
+		finally {
+			if (tempFile != null) {
+				tempFile.delete();
+			}
+			if(output!=null){
+				try {
+					output.close();
+				} catch (IOException e) {					
+				}
+			}
+		}
+	}
+
+	
 
 
 }

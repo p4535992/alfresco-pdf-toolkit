@@ -19,8 +19,6 @@
 	
    <properties>
   	    <maven.javadoc.skip>true</maven.javadoc.skip>
-	    <project.scm.id>abd-svn</project.scm.id>
-	    
 	    <alfresco.sdk.version>3.0.1</alfresco.sdk.version>
 	    <alfresco.share.version>5.2.f</alfresco.share.version>
 		<alfresco.surf.version>6.11</alfresco.surf.version>

@@ -18,9 +18,7 @@
 	-->
 	
  	<properties>
-	    <maven.javadoc.skip>true</maven.javadoc.skip>
-	    <project.scm.id>abd-svn</project.scm.id>
-	    
+	    <maven.javadoc.skip>true</maven.javadoc.skip>	    
 	    <alfresco.sdk.version>3.0.1</alfresco.sdk.version>
 	    <alfresco.platform.version>5.2.f</alfresco.platform.version>
 	   
@@ -351,6 +349,14 @@
 	            -->
 		  	</plugins>
 	  	</pluginManagement>
+	  	
+	  	<resources>
+            <!-- Filter the resource files in this project and do property substitutions -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
      </build>
      <profiles>
 

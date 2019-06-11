@@ -129,4 +129,12 @@ public interface PDFToolkitService
      * @return
      */
     public NodeRef collatePDF(NodeRef targetNodeRef,Map<String,Serializable> params);
+
+    /**
+     * Archivable a PDF Document
+     * @param targetNodeRef
+     * @param params
+     * @return
+     */
+	public NodeRef archivablePDF(NodeRef targetNodeRef, Map<String, Serializable> params);
 }

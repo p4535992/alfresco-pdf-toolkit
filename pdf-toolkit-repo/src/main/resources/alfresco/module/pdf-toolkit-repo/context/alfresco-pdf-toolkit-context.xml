@@ -2,216 +2,188 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
 	
-   	<!--  PDF Toolkit service -->
-    <bean id="org.alfresco.extension.pdf-toolkit-service" 
-        class="org.alfresco.extension.pdftoolkit.service.PDFToolkitServiceImpl">
-        <property name="serviceRegistry" ref="ServiceRegistry"/>
-        <property name="createNew" value="${pdftoolkit.createNew}"/>
-        <property name="useEncryptionAspect" value="${pdftoolkit.useEncryptionAspect}"/>
-        <property name="useSignatureAspect" value="${pdftoolkit.useSignatureAspect}"/>
-		<!-- most of these PDF actions are only applicable to PDF documents, so lets use a
-		sensible minimum constraint in the applicable types list. -->
-		<property name="applicableTypes">
+	<!-- load the custom content model -->
+	<bean id="pdftoolkit-model" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+		<property name="models">
+			<list>
+				<value>alfresco/module/${project.artifactId}/model/pdftoolkitModel.xml</value>
+			</list>
+		</property>
+		<property name="labels">
             <list>
-                <value>{http://www.alfresco.org/model/content/1.0}content</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdf-toolkit-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfappend-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfdelete-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfencryption-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfinsert-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfsignature-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfsplit-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfsplitatpage-messages-repo</value>
+                <value>alfresco/module/${project.artifactId}/messages/pdfwatermark-messages-repo</value>
             </list>
         </property>
-        <property name="useAspect">
-        	<value>true</value>
-        </property>
-    </bean> 
+	</bean>
+	
+	<!-- The strings -->
+	<bean id="pdftoolkit-messages" class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
+		<property name="resourceBundles">
+			<list>
+				<value>alfresco.module.${project.artifactId}.messages.pdf-toolkit-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfappend-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfdelete-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfencryption-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfinsert-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfsignature-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfsplit-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfsplitatpage-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfwatermark-messages-repo</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="bootstrapExtraBundlesBean" class="org.alfresco.web.app.ResourceBundleBootstrap">
+		<property name="resourceBundles">
+			<list>
+				<value>alfresco.module.${project.artifactId}.messages.pdf-toolkit-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfappend-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfdelete-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfencryption-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfinsert-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfsignature-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfsplit-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfsplitatpage-messages-repo</value>
+				<value>alfresco.module.${project.artifactId}.messages.pdfwatermark-messages-repo</value>				
+			</list>
+		</property>
+	</bean>
+	
+	<!-- constraints for the various types -->
+	<!-- In these constraints, the key is the value that will be set for the parameter, the 
+	"value" is the display text for the resulting select box -->
+	
+	<!-- visibility constraint is used by digital signatures, indicates whether sig is visible after application -->
+	<bean id="pdfc-visibility" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="hidden" value="Hidden"/>
+				<entry key="visible" value="Visible"/>
+			</map>
+		</property>
+	</bean>    
+	
+	<!-- key type constraint is used by digital signatures -->
+	<bean id="pdfc-keytype" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="default" value="Default"/>
+				<entry key="pkcs12" value="PKCS12"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- encryption level constraint, used by the encryption action -->
+	<bean id="pdfc-encryptionlevel" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="0" value="40 bit"/>
+				<entry key="1" value="128 bit"/>
+				<entry key="2" value="128 bit AES"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- page constraint, used by watermark action -->
+	<bean id="pdfc-page" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="all" value="All"/>
+				<entry key="first" value="First"/>
+				<entry key="last" value="Last"/>
+				<entry key="odd" value="Odd"/>
+				<entry key="even" value="Even"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!--  position constraint, used by watermark and digital signature actions -->
+	<bean id="pdfc-position" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="topleft" value="Top left"/>
+				<entry key="topright" value="Top right"/>
+				<entry key="center" value="Center"/>
+				<entry key="bottomleft" value="Bottom left"/>
+				<entry key="bottomright" value="Bottom right"/>
+				<entry key="manual" value="Manually Defined"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- font constraint, used in applying text watermarks -->
+	<bean id="pdfc-font" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="Helvetica" value="Helvetica"/>
+				<entry key="Times-Roman" value="Times-Roman"/>
+				<entry key="Courier" value="Courier"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- depth constraint, used by watermark action, indicates whether applied above or below page content -->
+	<bean id="pdfc-depth" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="over" value="Over"/>
+				<entry key="under" value="Under"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- font size constraint, used by text watermarks -->
+	<bean id="pdfc-fontsize" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="12" value="12"/>
+				<entry key="18" value="18"/>
+				<entry key="22" value="22"/>
+				<entry key="28" value="28"/>
+				<entry key="34" value="34"/>
+				<entry key="40" value="40"/>
+				<entry key="48" value="48"/>
+				<entry key="72" value="72"/>
+			</map>
+		</property>
+	</bean>
+	
+	<!-- watermark type constraint, used by the watermark action -->
+	<bean id="pdfc-watermarktype" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="image" value="Image"/>
+				<entry key="text" value="Text"/>
+			</map>
+		</property>
+	</bean>
+
+	<!-- PDF/A level constants -->
+	<bean id="pdfc-archivelevel" class="org.alfresco.extension.pdftoolkit.constraints.MapConstraint" parent="action-constraint">
+		<property name="constraintMap">
+			<map>
+				<entry key="1" value="PDFX1A2001"/>
+				<entry key="3" value="PDFA1A"/>
+				<entry key="4" value="PDFA1B"/>
+			</map>
+		</property>
+	</bean>  
     
-	<bean id="org.alfresco.extension.pdf-toolkit-action" abstract="true" parent="action-executer">
-		<property name="serviceRegistry">
-			<ref bean="ServiceRegistry" />
-		</property>
-		<property name="PDFToolkitService">
-			<ref bean="org.alfresco.extension.pdf-toolkit-service"/>
-		</property>
-		<property name="applicableTypes">
+    <bean id="pdftoolkit.properties" parent="common-placeholder-configurer">
+        <property name="locations">
             <list>
-                <value>{http://www.alfresco.org/model/content/1.0}content</value>
+                <!--  <value>classpath:alfresco/module/${project.artifactId}/context/pdftoolkit-config.properties</value> -->
+                <value>classpath:alfresco/module/${project.artifactId}/alfresco-global.properties</value>
             </list>
         </property>
-	</bean>
-	
-	<!-- pdfsplit -->
-	<bean id="pdf-split"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-	</bean>
-
-   <!-- pdfcompress -->
-   <bean id="pdf-compress"
-         class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFCompressActionExecuter"
-         parent="action-executer" depends-on="pdftoolkit-messages">    
-   </bean>
-
-	<!-- pdfappend -->
-	<bean id="pdf-append"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFAppendActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-			<property name="fileNameProvider" ref="defaultExistingFileFileNameProvider"/>
-	</bean>
-
-	<!-- pdfsplitatapge -->
-	<bean id="pdf-split-at-page"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSplitAtPageActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-	</bean>
-	
-	<!-- pdfinsertatapge -->
-	<bean id="pdf-insert-at-page"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFInsertAtPageActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-	</bean>
-
-	<!-- pdfwatermark -->
-	<bean id="pdf-watermark"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFWatermarkActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-		<property name="positionConstraint">
-			<ref bean="pdfc-position"/>
-		</property>
-		<property name="pageConstraint">
-			<ref bean="pdfc-page"/>
-		</property>
-		<property name="fontConstraint">
-			<ref bean="pdfc-font"/>
-		</property>
-		<property name="depthConstraint">
-			<ref bean="pdfc-depth"/>
-		</property>
-		<property name="typeConstraint">
-			<ref bean="pdfc-watermarktype"/>
-		</property>
-		<property name="fontSizeConstraint">
-			<ref bean="pdfc-fontsize"/>
-		</property>
-	</bean>
-	
-	<!-- pdfencryption -->
-	<bean id="pdf-encryption"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFEncryptionActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-		<property name="encryptionLevelConstraint">
-			<ref bean="pdfc-encryptionlevel" />
-		</property>
-	</bean>
-	
-	<!-- pdfdecryption -->
-	<bean id="pdf-decryption"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFDecryptionActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-	</bean>
-	
-	<!-- pdfsignature -->
-	<bean id="pdf-signature"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFSignatureActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-		<property name="visibilityConstraint">
-			<ref bean="pdfc-visibility"/>
-		</property>
-		<property name="keyTypeConstraint">
-			<ref bean="pdfc-keytype"/>
-		</property>
-		<property name="positionConstraint">
-			<ref bean="pdfc-position"/>
-		</property>
-		<property name="pageConstraint">
-			<ref bean="pdfc-page"/>
-		</property>
-        <property name="useAspect">
-        	<value>true</value>
-        </property>
-	</bean>
-	
-	<!-- pdfdelete -->
-	<bean id="pdf-delete-page"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFDeletePageActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-	</bean>
-   
-   <!-- pdfextract -->
-	<bean id="pdf-extract-page"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFExtractPageActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-	</bean>
-	
-   <!-- pdfdelete -->
-	<bean id="pdf-rotate"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFRotateActionExecuter"
-		parent="org.alfresco.extension.pdf-toolkit-action" depends-on="pdftoolkit-messages">
-	</bean>
-	
-
-	<!-- pdf-convert-to-archivable -->
-   <!--
-	<bean id="pdf-convert-to-archivable"
-		class="org.alfresco.extension.pdftoolkit.repo.action.executer.PDFConvertToArchivableActionExecuter"
-		parent="action-executer" depends-on="pdftoolkit-messages">
-		<property name="serviceRegistry">
-			<ref bean="ServiceRegistry"/>
-		</property>
-		<property name="applicableTypes">
-            <list>
-                <value>{http://www.alfresco.org/model/content/1.0}content</value>
-            </list>
-        </property>
-        <property name="createNew" value="true"/>
-        <property name="archiveLevelConstraint">
-			<ref bean="pdfc-archivelevel"/>
-		</property>
-		<property name="jodConverter">
-			<ref bean="jodconverter.shared.instance"/>
-		</property>
-	</bean>
-	-->
-	<!-- Import the swftools transformer worker from the third party subsystem -->
-   <!--
-   	<bean id="jodconverter.shared.instance" class="org.alfresco.repo.management.subsystems.SubsystemProxyFactory">
-      	<property name="sourceApplicationContextFactory">
-        	<ref bean="OOoJodconverter" />
-      	</property>
-      	<property name="sourceBeanName">
-         	<value>jodconverter.shared.instance</value>
-      	</property>
-      	<property name="interfaces">
-         	<list>
-            	<value>org.alfresco.enterprise.repo.content.JodConverter</value>
-         	</list>
-      	</property>
-   	</bean>
-    -->
-
-	<!--<bean id="pdftoolkit-jod" class="org.alfresco.enterprise.repo.content.JodConverterSharedInstance">
-       <property name="officeHome">
-          <value>${jodconverter.officeHome}</value>
-       </property>
-       <property name="maxTasksPerProcess">
-          <value>${jodconverter.maxTasksPerProcess}</value>
-       </property>
-       <property name="taskExecutionTimeout">
-          <value>${jodconverter.taskExecutionTimeout}</value>
-       </property>
-       <property name="taskQueueTimeout">
-          <value>${jodconverter.taskQueueTimeout}</value>
-       </property>
-       <property name="portNumbers">
-          <value>${jodconverter.portNumbers}</value>
-       </property>
-       <property name="templateProfileDir">
-          <value>${jodconverter.templateProfileDir}</value>
-       </property>
-       <property name="enabled">
-          <value>${jodconverter.enabled}</value>
-       </property>
-   </bean>-->
-   
-	<!-- Page count web script -->
-    <bean id="webscript.org.alfresco.extension.pdftoolkit.pagecount.get" class="org.alfresco.extension.pdftoolkit.webscripts.GetPageCount" parent="webscript">
-		<property name="serviceRegistry" ref="ServiceRegistry"/>
-	</bean>
+    </bean>
 </beans>
