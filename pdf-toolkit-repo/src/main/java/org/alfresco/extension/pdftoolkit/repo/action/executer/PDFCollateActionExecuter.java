@@ -67,10 +67,17 @@ public class PDFCollateActionExecuter extends BasePDFActionExecuter
     }
 
     @Override
-    protected final void executeImpl(Action action, NodeRef actionedUponNodeRef) {        
-    	//Collate PDF
-    	NodeRef result = pdfToolkitService.collatePDF(actionedUponNodeRef, action.getParameterValues());
-    	action.setParameterValue(PARAM_RESULT, result);
+    protected final void executeImpl(Action action, NodeRef actionedUponNodeRef) {  
+    	try{
+    		logger.info("START ACION : " + this.getClass().getSimpleName());
+	    	//Collate PDF
+	    	NodeRef result = pdfToolkitService.collatePDF(actionedUponNodeRef, action.getParameterValues());
+	    	action.setParameterValue(PARAM_RESULT, result);
+	    	logger.info("END ACION : " + this.getClass().getSimpleName());
+    	}catch(Throwable ex){
+    		logger.error(ex.getMessage(),ex);
+    		throw ex;
+    	}
     }
 
 }

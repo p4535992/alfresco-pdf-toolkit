@@ -39,7 +39,14 @@ public class PDFExtractPageActionExecuter extends BasePDFActionExecuter {
 	@Override
 	protected void executeImpl(Action action, NodeRef actionedUponNodeRef) 
 	{
-		NodeRef result = pdfToolkitService.extractPagesFromPDF(actionedUponNodeRef, action.getParameterValues());
-		action.setParameterValue(PARAM_RESULT, result);
+    	try{
+    		logger.info("START ACION : " + this.getClass().getSimpleName());
+			NodeRef result = pdfToolkitService.extractPagesFromPDF(actionedUponNodeRef, action.getParameterValues());
+			action.setParameterValue(PARAM_RESULT, result);
+	    	logger.info("END ACION : " + this.getClass().getSimpleName());
+    	}catch(Throwable ex){
+    		logger.error(ex.getMessage(),ex);
+    		throw ex;
+    	}
 	}
 }

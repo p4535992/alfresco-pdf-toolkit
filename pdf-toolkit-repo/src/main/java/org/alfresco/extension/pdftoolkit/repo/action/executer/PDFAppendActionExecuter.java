@@ -48,7 +48,7 @@ public class PDFAppendActionExecuter extends BasePDFActionExecuter
     /**
      * The logger
      */
-    private static Log         logger                   = LogFactory.getLog(PDFAppendActionExecuter.class);
+    private static org.slf4j.Logger         logger                   = org.slf4j.LoggerFactory.getLogger(PDFAppendActionExecuter.class);
 
     /**
      * Action constants
@@ -75,8 +75,15 @@ public class PDFAppendActionExecuter extends BasePDFActionExecuter
     @Override
     protected void executeImpl(Action action, NodeRef actionedUponNodeRef)
     {
-        // Do the work....split the PDF
-    	NodeRef result = pdfToolkitService.appendPDF(actionedUponNodeRef, action.getParameterValues());
-    	action.setParameterValue(PARAM_RESULT, result);
+    	try{
+    		logger.info("START ACION : " + this.getClass().getSimpleName());
+	        // Do the work....split the PDF
+	    	NodeRef result = pdfToolkitService.appendPDF(actionedUponNodeRef, action.getParameterValues());
+	    	action.setParameterValue(PARAM_RESULT, result);
+	    	logger.info("END ACION : " + this.getClass().getSimpleName());
+    	}catch(Throwable ex){
+    		logger.error(ex.getMessage(),ex);
+    		throw ex;
+    	}
     }
 }
