@@ -235,7 +235,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
                     {
                         // Get a writer and prep it for putting it back into the repo
                         destinationNode = createDestinationNode(fileName, 
-                        		(NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+                        		params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
                         writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
                         
                         writer.setEncoding(targetReader.getEncoding()); // original
@@ -353,7 +353,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             
             // write out to destination
             destinationNode = createDestinationNode(fileName, 
-            		(NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+            		params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
             writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
 
             writer.setEncoding(targetReader.getEncoding());
@@ -440,7 +440,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             
             // write out to destination
             destinationNode = createDestinationNode(fileName, 
-            		(NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+            		params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
             writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
 
             writer.setEncoding(targetReader.getEncoding());
@@ -632,7 +632,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 			String fileName = getFilename(params, targetNodeRef);
 
 			destinationNode = createDestinationNode(fileName, 
-					(NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+					params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
 			writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
 
 			writer.setEncoding(pdfReader.getEncoding());
@@ -745,8 +745,12 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
         
         try
         {
-        	destinationFolder = (NodeRef)params.get(PARAM_DESTINATION_FOLDER);
-        	
+        	//destinationFolder = (NodeRef)params.get(PARAM_DESTINATION_FOLDER);
+            if(params.get(PARAM_DESTINATION_FOLDER)==null){
+            	destinationFolder = ns.getPrimaryParent(targetNodeRef).getParentRef();
+            }else{
+            	destinationFolder = (NodeRef)params.get(PARAM_DESTINATION_FOLDER);
+            }
         	ContentReader targetReader = getReader(targetNodeRef);
         	
             // Get the split frequency
@@ -909,7 +913,12 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 
 		try
 		{
-			destinationFolder = (NodeRef)params.get(PARAM_DESTINATION_FOLDER);
+			//destinationFolder = (NodeRef)params.get(PARAM_DESTINATION_FOLDER);
+            if(params.get(PARAM_DESTINATION_FOLDER)==null){
+            	destinationFolder = ns.getPrimaryParent(targetNodeRef).getParentRef();
+            }else{
+            	destinationFolder = (NodeRef)params.get(PARAM_DESTINATION_FOLDER);
+            }
 			ContentReader targetReader = getReader(targetNodeRef);
 
 			// Get the split frequency
@@ -1179,7 +1188,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
                         // Get a writer and prep it for putting it back into the
                         // repo
                         destinationNode = createDestinationNode(file.getName(), 
-                        		(NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+                        		params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
                         writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
                         
                         writer.setEncoding(targetReader.getEncoding()); // original
@@ -1311,8 +1320,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             stamp.close();
             pdfReader.close();
 
-            destinationNode = createDestinationNode(fileName, 
-            		(NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+            destinationNode = createDestinationNode(fileName, params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+            
             writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
 
             writer.setEncoding(targetReader.getEncoding());
@@ -1529,7 +1538,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 
                   // write out to destination
                   NodeRef destinationNode = createDestinationNode(file.getName(),
-                          (NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+                          params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
 
                   writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
 
@@ -1754,7 +1763,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	        doc.close();
 	
 	        destinationNode = createDestinationNode(fileName, 
-	        		(NodeRef)params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+	        		params.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
 	        writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
 	
 	        writer.setEncoding(targetReader.getEncoding());
@@ -1840,9 +1849,15 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
      * @param filename
      * @return
      */
-    protected NodeRef createDestinationNode(String filename, NodeRef destinationParent, NodeRef target, boolean inplace)
+    protected NodeRef createDestinationNode(String filename, Serializable destinationParent, NodeRef target, boolean inplace)
     {
 
+        NodeRef destinationFolder = null;
+        if(destinationParent==null){
+        	destinationFolder = ns.getPrimaryParent(target).getParentRef();
+        }else{
+        	destinationFolder = (NodeRef)destinationParent;
+        }
     	NodeRef destinationNode;
     	
     	// if inplace mode is turned on, the destination for the modified content
@@ -1855,14 +1870,14 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
     	if(createNew)
     	{
 	    	//create a file in the right location
-	        FileInfo fileInfo = ffs.create(destinationParent, filename, ContentModel.TYPE_CONTENT);
+	        FileInfo fileInfo = ffs.create(destinationFolder, filename, ContentModel.TYPE_CONTENT);
 	        destinationNode = fileInfo.getNodeRef();
     	}
     	else
     	{
     		try 
     		{
-	    		FileInfo fileInfo = ffs.copy(target, destinationParent, filename);
+	    		FileInfo fileInfo = ffs.copy(target, destinationFolder, filename);
 	    		destinationNode = fileInfo.getNodeRef();
     		}
     		catch(FileNotFoundException fnf)
@@ -1902,9 +1917,9 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
     
     private String getFilename(Map<String, Serializable> params, NodeRef targetNodeRef)
     {
-    	Serializable providedName = params.get(PARAM_DESTINATION_NAME);
+    	String providedName = (String)params.get(PARAM_DESTINATION_NAME);
         String fileName = null;
-        if(providedName != null)
+        if(StringUtils.isNotBlank(providedName))
         {
         	fileName = String.valueOf(providedName);
         	if(!fileName.endsWith(FILE_EXTENSION))
@@ -2168,7 +2183,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             // Get a writer and prep it for putting it back into the repo
             //can't use BasePDFActionExecuter.getWriter here need the nodeRef of the destination
             destinationNode = createDestinationNode(fileName, 
-            		(NodeRef)options.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+            		options.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
             writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
             
             writer.setEncoding(actionedUponContentReader.getEncoding());
@@ -2308,7 +2323,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             // Get a writer and prep it for putting it back into the repo
             //can't use BasePDFActionExecuter.getWriter here need the nodeRef of the destination
             destinationNode = createDestinationNode(fileName, 
-            		(NodeRef)options.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
+            		options.get(PARAM_DESTINATION_FOLDER), targetNodeRef, inplace);
             writer = cs.getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
             writer.setEncoding(actionedUponContentReader.getEncoding());
             writer.setMimetype(FILE_MIMETYPE);
@@ -3079,7 +3094,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             // Get a writer and prep it for putting it back into the repo
             //can't use BasePDFActionExecuter.getWriter here need the nodeRef of the destination
             NodeRef destinationNode = createDestinationNode(file.getName(), 
-            		(NodeRef)ruleAction.getParameterValue(PARAM_DESTINATION_FOLDER), actionedUponNodeRef, inplace);
+            		ruleAction.getParameterValue(PARAM_DESTINATION_FOLDER), actionedUponNodeRef, inplace);
             writer = serviceRegistry.getContentService().getWriter(destinationNode, ContentModel.PROP_CONTENT, true);
             writer.setEncoding(actionedUponContentReader.getEncoding());
             writer.setMimetype(FILE_MIMETYPE);
