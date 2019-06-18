@@ -42,7 +42,7 @@
 		</property>
 	</bean>
 	
-	<bean id="bootstrapExtraBundlesBean" class="org.alfresco.web.app.ResourceBundleBootstrap">
+	<bean id="pdftoolkit-bootstrapExtraBundlesBean" class="org.alfresco.web.app.ResourceBundleBootstrap">
 		<property name="resourceBundles">
 			<list>
 				<value>alfresco.module.${project.artifactId}.messages.pdf-toolkit-messages-repo</value>

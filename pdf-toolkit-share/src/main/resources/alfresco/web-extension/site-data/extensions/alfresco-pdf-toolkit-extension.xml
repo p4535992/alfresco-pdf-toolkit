@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!-- https://blog.arvixe.com/form-control-parameters-in-alfresco-share/ -->
+<!-- 
+The association control is used to allow objects in the repository to be picked and ultimately associated with the node being edited. 
+The control uses the JavaScript Alfresco.ObjectFinder component to allow the user to browse the repository and pick objects.
 
+Related Parameters
+
+The parameters this controls supports are listed and explained below.
+
+Parameter Name 						Type 	Mandatory 	Description
+compactMode 						boolean False 		To show picker will be shown in compact mode
+displayMode 						string 	False 		Decide the way to display current values, the default is “items”, when set to “list” the current items are shown in a rich list with buttons to manage the current items.
+showTargetLink 						boolean False 		Determines whether a link to the document details page will be rendered to content items (only applicable when displayMode is set to “items”)
+selectedValueContextProperty 		string 	False 		The name of a component binding property or url parameter that contains the values of the items to pre-select in the picker
+selectActionLabel 					string 	False 		The label of the button that launches the picker, by default the label is “Select”
+selectActionLabelId 				string 	False 		The resource bundle key of the label of the button that launches the picker
+forceEditable 						boolean False 		Determines where to start the picker, the value can be any of the values below, the default is “{company home}”. Customized startLocations can also be implemented, see NodeLocatorService for more details.
+startLocation 						string 	False 		NodeRef*
+startLocationParams 				string 	False 		Query string formatted parameters for startLocation
+allowNavigationToContentChildren 	boolean False 		Determines whether the picker can navigate the children of content nodes, the default is false
+
+* Description about start Location Parameter Options
+
+    {companyhome}: Represents ‘Company Home’ space
+    {userhome}: Represents current users home space
+    {siteshome}: Represents ‘Sites’ space
+    {doclib}: Represents root of the Document Library for the site the item is part of. If the item is not part of a site the default is used. For “create” forms the “item” is considered to be the location the new item is being created in
+    {self}: Represents item being edited for “edit” forms and the location the item is being created in for “create” forms. This optionally will typically use with cm:folder types and sub-types
+    {parent}: The parent of the item being edited or the parent of the location the new item is being created in
+    {ancestor}: An ancestor node, same as {parent} without parameters. A type parameter can limit the ancestor node to a certain type or aspect parameter can limit to an ancestor node with a certain aspect applied. The node and aspect parameters can be combined.
+    A NodeRef e.g. workspace://SpacesStore/abcd-12345: Starts the picker in a specific location represented by the NodeRef
+    An XPath e.g. /app:company_home/app:dictionary: Starts the picker in a specific location represented by the XPath
+-->
 <extension xmlns="http://www.springframework.org/extensions/surf/extensibility">
 	<modules>
 		<module>
@@ -607,17 +639,37 @@
 			    	<forms>
 			        	<form>
 			            	<field-visibility>
+			            	    <show id="executeAsynchronously"/>
 			            		<show id="inplace"/>
 			            		<show id="destination-name"/>
 			            		<show id="destination-folder"/>
 			            		<show id="target-node"/>
 			                </field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
 			                        </control>
 			                	</field>
+								<field id="target-node">
+									<control template="/org/alfresco/components/form/controls/association.ftl">
+									    <control-param name="compactMode">true</control-param>
+										<control-param name="showTargetLink">true</control-param>
+										<control-param name="parentNodeRef">{parent}</control-param>
+										<control-param name="allowNavigationToContentChildren">true</control-param>
+										<control-param name="rootNode">{siteshome}</control-param>
+										<control-param name="multipleSelectMode">false</control-param>
+										<control-param name="itemType">cm:content</control-param>
+										<control-param name="searchMode">true</control-param>
+										<control-param name="itemFamily">node</control-param>
+										<!-- <control-param name="displayMode">items</control-param> -->
+										<control-param name="displayMode">list</control-param>
+										<control-param name="startLocation">{parent}</control-param>
+									</control>
+								</field>								
 			                </appearance>
 			            </form>
 			        </forms>
@@ -627,17 +679,21 @@
 					<forms>
 						<form>
 							<field-visibility>
-								<!--<show id="inplace"/>-->
+							    <show id="executeAsynchronously"/>
+								<show id="inplace"/>
 								<!--<show id="destination-folder"/>-->
 								<show id="target-node"/>
 								<show id="destination-name"/>
 							</field-visibility>
 							<appearance>
-								<!--<field id="inplace">-->
-									<!--<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">-->
-										<!--<control-param name="hideProperties">assoc_target-node</control-param>-->
-									<!--</control>-->
-								<!--</field>-->
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>							    
+								<field id="inplace">
+									<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
+										<control-param name="hideProperties">assoc_target-node</control-param>
+									</control>
+								</field>							
 							</appearance>
 						</form>
 					</forms>
@@ -658,6 +714,7 @@
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -675,6 +732,9 @@
 			        			<show id="encryption-level"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -689,12 +749,16 @@
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
 			        			<show id="owner-password"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -709,6 +773,7 @@
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -728,6 +793,9 @@
 			        			<show id="height"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -748,7 +816,7 @@
 			                    	<control template="/org/alfresco/pdftoolkit/components/form/controls/dependentSelect.ftl">
 			                    		<control-param name="showSelectValues">manual:prop_location-x,prop_location-y</control-param>
 			                    	</control>
-			                    </field>
+			                    </field>	
 			                </appearance>
 			            </form>
 			        </forms>
@@ -758,6 +826,7 @@
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -773,6 +842,9 @@
 			        			<show id="location-y"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -803,6 +875,7 @@
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        		    <show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -810,6 +883,9 @@
 			        			<show id="page"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -830,12 +906,16 @@
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        		    <show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
 			        			<show id="page"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -908,6 +988,7 @@
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -915,6 +996,9 @@
 			        			<show id="page"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    

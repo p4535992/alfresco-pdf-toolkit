@@ -6,6 +6,7 @@ import org.alfresco.extension.pdftoolkit.naming.FileNameProvider;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
@@ -70,9 +71,16 @@ public class PDFCollateActionExecuter extends BasePDFActionExecuter
     protected final void executeImpl(Action action, NodeRef actionedUponNodeRef) {  
     	try{
     		logger.info("START ACION : " + this.getClass().getSimpleName());
-	    	//Collate PDF
-	    	NodeRef result = pdfToolkitService.collatePDF(actionedUponNodeRef, action.getParameterValues());
-	    	action.setParameterValue(PARAM_RESULT, result);
+            RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionCallback<NodeRef>() {
+                @Override
+                public NodeRef execute() throws Throwable {
+        	    	//Collate PDF
+        	    	NodeRef result = pdfToolkitService.collatePDF(actionedUponNodeRef, action.getParameterValues());
+        	    	action.setParameterValue(PARAM_RESULT, result);
+                    return result;
+                }
+            };
+            pdfToolkitService.executeInNewTransaction(callback);
 	    	logger.info("END ACION : " + this.getClass().getSimpleName());
     	}catch(Throwable ex){
     		logger.error(ex.getMessage(),ex);

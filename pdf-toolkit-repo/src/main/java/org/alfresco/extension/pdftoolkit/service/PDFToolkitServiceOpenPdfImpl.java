@@ -55,6 +55,8 @@ import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.template.FreeMarkerProcessor;
 import org.alfresco.repo.template.TemplateNode;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.ServiceException;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.action.Action;
@@ -78,6 +80,7 @@ import org.alfresco.util.TempFileProvider;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.pdfbox.examples.pdfa.CreatePDFA;
@@ -219,12 +222,12 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             merger.setDestinationFileName(fileName);
             merger.mergeDocuments();
 
-            // build a temp dir name based on the ID of the noderef we are
-            // importing
+            // build a temp dir name based on the ID of the noderef we are importing
             File alfTempDir = TempFileProvider.getTempDir();
-            tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
             tempDir.mkdir();
-            
+
             pdfTarget.save(tempDir + "" + File.separatorChar + fileName);
 
             for (File file : tempDir.listFiles())
@@ -336,7 +339,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 
             // get temp file
             File alfTempDir = TempFileProvider.getTempDir();
-            tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
             tempDir.mkdir();
             File file = new File(tempDir, ffs.getFileInfo(targetNodeRef).getName());
 
@@ -426,7 +430,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 
             // get temp file
             File alfTempDir = TempFileProvider.getTempDir();
-            tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
             tempDir.mkdir();
             File file = new File(tempDir, ffs.getFileInfo(targetNodeRef).getName());
 
@@ -580,7 +585,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 			
 			// create temp dir to store file
 			File alfTempDir = TempFileProvider.getTempDir();
-			tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+			//tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+			tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
 			tempDir.mkdir();
 			File file = new File(tempDir, ffs.getFileInfo(targetNodeRef).getName());
 
@@ -787,7 +793,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             // build a temp dir name based on the ID of the noderef we are
             // importing
             File alfTempDir = TempFileProvider.getTempDir();
-            tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
             tempDir.mkdir();
 
             while (it.hasNext())
@@ -955,7 +962,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 			// build a temp dir, name based on the ID of the noderef we are
 			// importing
 			File alfTempDir = TempFileProvider.getTempDir();
-			tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+			//tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+			tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
 			tempDir.mkdir();
 
 			// FLAG: This is ugly.....get the first PDF.
@@ -1159,7 +1167,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             // build a temp dir, name based on the ID of the noderef we are
             // importing
             File alfTempDir = TempFileProvider.getTempDir();
-            tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
             tempDir.mkdir();
 
             String fileName = params.get(PARAM_DESTINATION_NAME).toString();
@@ -1284,7 +1293,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
             is = targetReader.getContentInputStream();
 
             File alfTempDir = TempFileProvider.getTempDir();
-            tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+            tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
             tempDir.mkdir();
             
             Boolean inplace = Boolean.valueOf(String.valueOf(params.get(PARAM_INPLACE)));
@@ -1437,7 +1447,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 
                   // get temp file
                   File alfTempDir = TempFileProvider.getTempDir();
-                  tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+                  //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+                  tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
                   tempDir.mkdir();
                   File file = new File(tempDir, serviceRegistry.getFileFolderService().getFileInfo(targetNodeRef).getName());
 
@@ -1733,7 +1744,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 	        is = targetReader.getContentInputStream();
 	
 	        File alfTempDir = TempFileProvider.getTempDir();
-	        tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+	        //tempDir = new File(alfTempDir.getPath() + File.separatorChar + targetNodeRef.getId());
+	        tempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+targetNodeRef.getId());
 	        tempDir.mkdir();
 	        
 	        Boolean inplace = Boolean.valueOf(String.valueOf(params.get(PARAM_INPLACE)));
@@ -1869,7 +1881,7 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
     	
     	if(createNew)
     	{
-	    	//create a file in the right location
+	    	//create a file in the right location   		
 	        FileInfo fileInfo = ffs.create(destinationFolder, filename, ContentModel.TYPE_CONTENT);
 	        destinationNode = fileInfo.getNodeRef();
     	}
@@ -1908,7 +1920,8 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
     protected File getTempFile(NodeRef nodeRef)
     {
     	File alfTempDir = TempFileProvider.getTempDir();
-        File toolkitTempDir = new File(alfTempDir.getPath() + File.separatorChar + nodeRef.getId());
+        //File toolkitTempDir = new File(alfTempDir.getPath() + File.separatorChar + nodeRef.getId());
+    	File toolkitTempDir = new File(alfTempDir.getPath(),DateFormatUtils.format(System.currentTimeMillis(), "yyyy-MM-dd_HH-mm-ss")+"_"+nodeRef.getId());
         toolkitTempDir.mkdir();
         File file = new File(toolkitTempDir, ffs.getFileInfo(nodeRef).getName());
         
@@ -3323,8 +3336,22 @@ public class PDFToolkitServiceOpenPdfImpl extends PDFToolkitConstants implements
 			}
 		}
 	}
-
 	
-
-
+    /**
+     * Avoid ConcurrencyFailureException by using RetryingTransactionHelper
+     * @param callback
+     */
+	@Override
+	public NodeRef executeInNewTransaction(RetryingTransactionCallback<NodeRef> callback) {		
+//        RetryingTransactionCallback<Void> callback = new RetryingTransactionCallback<Void>() {
+//            @Override
+//            public Void execute() throws Throwable {
+//		    	executeImplInternal(nodeRef, contentData);
+//                return null;
+//            }
+//        };
+        RetryingTransactionHelper txnHelper = serviceRegistry.getRetryingTransactionHelper();
+        txnHelper.setMaxRetries(1);
+        return txnHelper.doInTransaction(callback, false, true);
+	}
 }

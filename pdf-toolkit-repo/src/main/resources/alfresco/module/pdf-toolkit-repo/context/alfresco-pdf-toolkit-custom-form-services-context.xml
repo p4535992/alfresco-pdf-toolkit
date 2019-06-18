@@ -3,16 +3,16 @@
 
 <beans>
    	<!-- define an action filter registry -->
-   	<bean id="pdfActionFilterRegistry" class="org.alfresco.repo.forms.processor.FilterRegistry" />
+   	<bean id="pdftoolkit-pdfActionFilterRegistry" class="org.alfresco.repo.forms.processor.FilterRegistry" />
    
   	<!-- 
   	override the actionFormProcessor bean and add the actionFilterRegistry
   	doing this because the ootb action form processor does not have a filter registry
   	and I don't want to modify any core objects if I can avoid it.
   	 -->
-   	<bean id="pdfActionFormProcessor" class="org.alfresco.repo.forms.processor.action.ActionFormProcessor" init-method="register">
+   	<bean id="pdftoolkit-pdfActionFormProcessor" class="org.alfresco.repo.forms.processor.action.ActionFormProcessor" init-method="register">
       	<property name="processorRegistry" ref="formProcessorRegistry" />
-    	<property name="filterRegistry" ref="pdfActionFilterRegistry" />
+    	<property name="filterRegistry" ref="pdftoolkit-pdfActionFilterRegistry" />
       	<property name="matchPattern">
         	<value>pdf-action</value>
       	</property>
@@ -22,8 +22,8 @@
    </bean>
    
    	<!-- add the form filter -->
-   	<bean id="pdftoolkit.actionFormFilter" class="org.alfresco.extension.pdftoolkit.form.PDFActionFormFilter" parent="baseFormFilter">
-   		<property name="filterRegistry" ref="pdfActionFilterRegistry" />
+   	<bean id="pdftoolkit-actionFormFilter" class="org.alfresco.extension.pdftoolkit.form.PDFActionFormFilter" parent="baseFormFilter">
+   		<property name="filterRegistry" ref="pdftoolkit-pdfActionFilterRegistry" />
    		<property name="serviceRegistry" ref="ServiceRegistry"/>
    		<property name="repositoryHelper" ref="repositoryHelper" />
    	</bean>

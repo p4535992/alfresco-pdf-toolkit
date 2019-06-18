@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.alfresco.extension.pdftoolkit.constants.PDFToolkitConstants;
 import org.alfresco.repo.action.ParameterDefinitionImpl;
+import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
@@ -28,8 +29,15 @@ public class PDFRotateActionExecuter extends BasePDFActionExecuter {
 	{
     	try{
     		logger.info("START ACION : " + this.getClass().getSimpleName());
-			NodeRef result = pdfToolkitService.rotatePDF(actionedUponNodeRef, action.getParameterValues());
-			action.setParameterValue(PARAM_RESULT, result);
+            RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionCallback<NodeRef>() {
+                @Override
+                public NodeRef execute() throws Throwable {
+        			NodeRef result = pdfToolkitService.rotatePDF(actionedUponNodeRef, action.getParameterValues());
+        			action.setParameterValue(PARAM_RESULT, result);
+                    return result;
+                }
+            };
+            pdfToolkitService.executeInNewTransaction(callback);
 	    	logger.info("END ACION : " + this.getClass().getSimpleName());
     	}catch(Throwable ex){
     		logger.error(ex.getMessage(),ex);

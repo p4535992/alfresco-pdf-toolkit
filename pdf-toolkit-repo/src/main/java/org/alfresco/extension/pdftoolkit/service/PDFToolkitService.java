@@ -21,6 +21,7 @@ package org.alfresco.extension.pdftoolkit.service;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 public interface PDFToolkitService
@@ -137,4 +138,10 @@ public interface PDFToolkitService
      * @return
      */
 	public NodeRef archivablePDF(NodeRef targetNodeRef, Map<String, Serializable> params);
+
+	/**
+	 * Utility method to execute the action in a transaction
+	 * @param callback
+	 */
+	public NodeRef executeInNewTransaction(RetryingTransactionCallback<NodeRef> callback);
 }

@@ -11,7 +11,7 @@
         <property name="createNew" value="${pdftoolkit.createNew}"/>
         <property name="useEncryptionAspect" value="${pdftoolkit.useEncryptionAspect}"/>
         <property name="useSignatureAspect" value="${pdftoolkit.useSignatureAspect}"/>
-        <property name="fileNameProvider" ref="defaultExistingFileFileNameProvider"/>
+        <property name="fileNameProvider" ref="pdftoolkit-defaultExistingFileFileNameProvider"/>
     </bean> 
     
 	<bean id="org.alfresco.extension.pdf-toolkit-action" abstract="true" parent="action-executer">
@@ -205,7 +205,7 @@
 		<property name="serviceRegistry" ref="ServiceRegistry"/>
 	</bean>
 
-	<bean id="defaultExistingFileFileNameProvider"
+	<bean id="pdftoolkit-defaultExistingFileFileNameProvider"
 		class="org.alfresco.extension.pdftoolkit.naming.AlfrescoDefaultExistingFileFileNameProvider">
 		<property name="serviceRegistry" ref="ServiceRegistry" />
 	</bean>
