@@ -59,3 +59,5 @@ Mozilla Public License Version 2.0
 * 2019-06-11 [BETA] Merged additional function from KeeSoft fork (https://github.com/keensoft/alfresco-pdf-toolkit-actions)
 
 * 2019-06-11 [BETA] Various update and clean of the code
+
+* 2019-08-21 [BETA] Merged additional function from bcircle fork https://github.com/bcircle/alfresco-pdf-toolkit/

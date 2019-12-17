@@ -5,6 +5,7 @@ import com.lowagie.text.pdf.BaseFont;
 
 public abstract class PDFToolkitConstants 
 {
+	public static final String PARAM_EXECUTE_ASYNCHRONOUSLY			= "executeAsynchronously";
     public static final String PARAM_INPLACE    	 				= "inplace";
     public static final String PARAM_DESTINATION_FOLDER 			= "destination-folder";
     public static final String PARAM_DESTINATION_NAME  				= "destination-name";

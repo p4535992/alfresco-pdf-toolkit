@@ -60,6 +60,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-signature.success</param>
 			        		<param name="failureMessage">message.pdf-signature.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>			        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -100,6 +103,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-watermark.success</param>
 			        		<param name="failureMessage">message.pdf-watermark.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -140,6 +146,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-append.success</param>
 			        		<param name="failureMessage">message.pdf-append.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -173,6 +182,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 							<param name="destination">{node.nodeRef}</param>
 							<param name="successMessage">message.pdf-collate.success</param>
 							<param name="failureMessage">message.pdf-collate.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>								
 							<!-- Mimetype evaluator disabled-->
 							<!--<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>-->
 						</action>
@@ -214,6 +226,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-encryption.success</param>
 			        		<param name="failureMessage">message.pdf-encryption.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -254,6 +269,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-decryption.success</param>
 			        		<param name="failureMessage">message.pdf-decryption.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -294,6 +312,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-insert-at-page.success</param>
 			        		<param name="failureMessage">message.pdf-insert-at-page.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -334,6 +355,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-split.success</param>
 			        		<param name="failureMessage">message.pdf-split.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -374,6 +398,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-split-at-page.success</param>
 			        		<param name="failureMessage">message.pdf-split-at-page.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -414,6 +441,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-delete-page.success</param>
 			        		<param name="failureMessage">message.pdf-delete-page.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -454,6 +484,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-extract-page.success</param>
 			        		<param name="failureMessage">message.pdf-extract-page.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -494,6 +527,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.pdf-rotate.success</param>
 			        		<param name="failureMessage">message.pdf-rotate.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -535,6 +571,9 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        		<param name="destination">{node.nodeRef}</param>
 			        		<param name="successMessage">message.convert-to-archivable.success</param>
 			        		<param name="failureMessage">message.convert-to-archivable.failure</param>
+							<permissions>
+								<permission allow="true">Write</permission>
+							</permissions>				        		
 			        		<evaluator>evaluator.pdftoolkit.doclib.action.pdfToolkitMimetype</evaluator>
 						</action>
 					</actions>
@@ -639,18 +678,17 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			            	<field-visibility>
-			            	    <!-- <show id="executeAsynchronously"/> -->
+			            	    <show id="executeAsynchronously"/>
 			            		<show id="inplace"/>
 			            		<show id="destination-name"/>
 			            		<show id="destination-folder"/>
 			            		<show id="target-node"/>
 			                </field-visibility>
 			                <appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->		                    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>		                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -681,18 +719,17 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 					<forms>
 						<form>
 							<field-visibility>
-							    <!-- <show id="executeAsynchronously"/> -->
+							    <show id="executeAsynchronously"/>
 								<show id="inplace"/>
 								<!--<show id="destination-folder"/>-->
 								<show id="target-node"/>
 								<show id="destination-name"/>
 							</field-visibility>
 							<appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->								    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>							    
 								<field id="inplace">
 									<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 										<control-param name="hideProperties">assoc_target-node</control-param>
@@ -718,7 +755,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
-			        		    <!-- <show id="executeAsynchronously"/> -->
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -736,11 +773,10 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        			<show id="encryption-level"/>
 			        		</field-visibility>
 			                <appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->				                    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -755,18 +791,17 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
-			        		    <!-- <show id="executeAsynchronously"/> -->
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
 			        			<show id="owner-password"/>
 			        		</field-visibility>
 			                <appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->					                    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -781,7 +816,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
-			        		    <!-- <show id="executeAsynchronously"/> -->
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -801,11 +836,10 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        			<show id="height"/>
 			        		</field-visibility>
 			                <appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->					                    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -836,7 +870,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
-			        		    <!-- <show id="executeAsynchronously"/> -->
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -852,11 +886,10 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        			<show id="location-y"/>
 			        		</field-visibility>
 			                <appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->					                    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>				                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -887,7 +920,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
-			        		    <!-- <show id="executeAsynchronously"/> -->
+			        		    <show id="executeAsynchronously"/>
 			        		    <show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -895,11 +928,10 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        			<show id="page"/>
 			        		</field-visibility>
 			                <appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->				                    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>		                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -920,18 +952,17 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
-			        		    <!-- <show id="executeAsynchronously"/> -->
+			        		    <show id="executeAsynchronously"/>
 			        		    <show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
 			        			<show id="page"/>
 			        		</field-visibility>
 			                <appearance>
-			                    <!--
 								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->					                    
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>		                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
@@ -952,11 +983,16 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
 			        			<show id="page"/>
 			        		</field-visibility>
 			                <appearance>
+								<field id="executeAsynchronously">
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>			               
 			                	<field id="page">
 			                    	<control template="/org/alfresco/pdftoolkit/components/form/controls/selectPage.ftl" >
 			                        	<control-param name="showPageScheme">true</control-param>
@@ -972,10 +1008,15 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			            	<field-visibility>
+			            	    <show id="executeAsynchronously"/>
 			            		<show id="destination-folder"/>
 			            		<show id="split-frequency"/>
 			                </field-visibility>
 			                <appearance>
+			                    <field id="executeAsynchronously">
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>	
 			                </appearance>
 			            </form>
 			        </forms>
@@ -985,10 +1026,15 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			            	<field-visibility>
+			            	    <show id="executeAsynchronously"/>
 			            		<show id="destination-folder"/>
 			            		<show id="page"/>
 			                </field-visibility>
 			                <appearance>
+			                    <field id="executeAsynchronously">
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>			                    
 			                	<field id="page">
 			                    	<control template="/org/alfresco/pdftoolkit/components/form/controls/selectPage.ftl" >
 			                        	<control-param name="showPageScheme">false</control-param>
@@ -1004,7 +1050,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			    	<forms>
 			        	<form>
 			        		<field-visibility>
-			        		    <!-- <show id="executeAsynchronously"/> -->
+			        		    <show id="executeAsynchronously"/>
 			        			<show id="inplace"/>
 			        			<show id="destination-name"/>
 			        			<show id="destination-folder"/>
@@ -1012,11 +1058,10 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			        			<show id="page"/>
 			        		</field-visibility>
 			                <appearance>
-			                    <!--
-								<field id="executeAsynchronously">
-				                    <control template="/org/alfresco/components/form/controls/hidden.ftl" />
-				                </field>	
-				                -->					                    
+			                    <field id="executeAsynchronously">
+			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl"/>			                         
+			                        <!-- <control template="/org/alfresco/components/form/controls/hidden.ftl" /> -->
+				                </field>			                    
 			                	<field id="inplace">
 			                		<control template="/org/alfresco/pdftoolkit/components/form/controls/hidingCheckbox.ftl">
 			                        	<control-param name="hideProperties">assoc_destination-folder-cntrl,prop_destination-name</control-param>    
