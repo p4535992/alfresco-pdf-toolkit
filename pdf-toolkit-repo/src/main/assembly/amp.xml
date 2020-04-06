@@ -6,7 +6,7 @@
     <!--
     Note that the Module dependency specified in the configuration section for the Alfresco Maven Plugin
     needs to be set to amp if any 3rd party libs should be applied by MMT:
-
+`
     <platformModules>
         <moduleDependency>
             <groupId>${project.groupId}</groupId>
@@ -14,36 +14,7 @@
             <version>${project.version}</version>
             <type>amp</type>
         </moduleDependency>
-    </platformModules>
     -->
-
-    <dependencySets>
-        <dependencySet>
-        	<!-- Include the project artifact (JAR) in the /lib directory in the AMP, 
-        	and any 3rd party libraries (JARs) used by the customization.
-	    	-->	
-        	<useProjectArtifact>true</useProjectArtifact>
-        	<!-- 
-        	<includes>
-        		<include>{groupId}:{artifactId}:jar::{version}</include>
-        	</includes>
-        	 -->
-        	<outputDirectory>lib</outputDirectory>
-        </dependencySet>
-        <dependencySet>
-        	<useProjectArtifact>true</useProjectArtifact>
-        	<scope>runtime</scope>
-			<unpack>true</unpack>
-			<unpackOptions>
-				<includes>
-					<include>META-INF/maven/${project.groupId}/${project.artifactId}/*</include>
-				</includes>
-				<excludes>
-					<exclude>*</exclude>
-				</excludes>
-			</unpackOptions>
-	    </dependencySet>
-    </dependencySets>
 
     <id>build-amp-file</id>
 
@@ -67,78 +38,24 @@
     </files>
 
     <fileSets>
-        <!-- Anything in the assembly/web directory will end up in the /web directory in the AMP -->		
+        <!-- Anything in the assembly/web directory will end up in the /web directory in the AMP -->
         <fileSet>
             <directory>src/main/assembly/web</directory>
             <outputDirectory>web</outputDirectory>
-            <filtered>true</filtered>
+            <filtered>true</filtered> <!-- Will filter files and substitute POM props such as for example ${project.name} -->
             <excludes>
                 <exclude>README.md</exclude>
             </excludes>
         </fileSet>
-        <!--
-		<fileSet>
-            <directory>src/main/resources/META-INF/resources</directory>
-            <outputDirectory>web</outputDirectory>
-            <filtered>true</filtered>
-            <excludes>
-				<exclude>**/*.jsfdia</exclude>
-				<exclude>**/*.ftl</exclude>
-				<exclude>**/*.jasper</exclude>
-				<exclude>**/*.ks</exclude>
-            </excludes>
-        </fileSet>
-		<fileSet>
-            <directory>src/main/resources/META-INF/resources</directory>
-            <outputDirectory>web</outputDirectory>
-        	<filtered>false</filtered>
-			<includes>
-				<include>**/*.ftl</include>
-				<include>**/*.jasper</include>
-				<include>**/*.ks</include>
-			</includes>
-        </fileSet>
-		-->
-        <!-- Esclusione file autogenerati da Eclipse e Esclusione file che utilizzano marcatori simili a quelli usati da maven  -->
-        <fileSet>
-            <directory>src/main/resources</directory>
-            <outputDirectory>config</outputDirectory>
-            <filtered>true</filtered> <!-- Will filter files and substitute POM props such as for example ${project.name} -->
-            <excludes>
-                <exclude>src/main/resources/alfresco/module/${project.artifactId}/module.properties</exclude>
-				<exclude>**/*.jsfdia</exclude>
-				<exclude>**/*.ftl</exclude>
-				<exclude>**/*.jasper</exclude>
-				<exclude>**/*.ks</exclude>
-				<exclude>**/*.png</exclude>
-            </excludes>
-        </fileSet>
-        <!-- Inclusione delle risorse che utilizzano marcatori simili a quelli usati da maven mettendo il filtering a false, cosi' i tag non vengono rimpiazzati -->
-        <fileSet>
-            <directory>src/main/resources</directory>
-            <outputDirectory>config</outputDirectory>       
-        	<filtered>false</filtered>
-			<includes>
-				<include>**/*.ftl</include>
-				<include>**/*.jasper</include>
-				<include>**/*.ks</include>
-				<include>**/*.png</include>
-			</includes>
-        </fileSet>                
-        <!-- the following file set includes the JAR artifact built by the package goal -->
-        <!--  
-        <fileSet>
-            <directory>target</directory>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>*.jar</include>
-            </includes>
-        </fileSet>
-        -->
-		<!--adding override libraries on lib directory-->
-        <fileSet>
-            <directory>lib-override</directory>
-            <outputDirectory>lib</outputDirectory>
-        </fileSet>
     </fileSets>
+
+    <!-- Include the project artifact (JAR) in the /lib directory in the AMP, and any 3rd party libraries (JARs)
+         used by the customization.
+    -->
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+
 </assembly>

@@ -1,204 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.alfresco.extension</groupId>
     <artifactId>pdf-toolkit-share</artifactId>
     <version>1.5-SNAPSHOT</version>
-    <name>Alfresco PDF Toolkit - Share</name>   
-    <packaging>jar</packaging>
+    <name>Alfresco PDF Toolkit - Share</name>
     <description>Alfresco PDF Toolkit Share customizations</description>
+    <packaging>jar</packaging>
 
-	<!-- DECOMMENT IF YOU WANT TO RUN THE EMEBEDDED TOMCAT -->
-    <!--
-    <parent>
-        <groupId>org.alfresco.extension</groupId>
-        <artifactId>pdf-toolkit</artifactId>
-        <version>1.5-SNAPSHOT</version>
-    </parent>
-	-->
-	
-   <properties>
-  	    <maven.javadoc.skip>true</maven.javadoc.skip>
+    <properties>
+        <!-- Alfresco Maven Plugin version to use -->
 	    <alfresco.sdk.version>3.0.1</alfresco.sdk.version>
-	    <alfresco.share.version>5.2.f</alfresco.share.version>
-		<alfresco.surf.version>6.11</alfresco.surf.version>
-	    <!-- To know which resource folder to filter for AMP extension projects -->
-		<!-- <app.amp.folder>src/main/amp</app.amp.folder> -->
-		<!-- To know which folder filtered AMP resources should end up in under /target -->
-		<app.amp.output.folder>${project.build.directory}/amp</app.amp.output.folder>
-		<!-- Turns on/off POM properties filtering globally. By default filtering is on.
-        This can be overridden in your POM, but do it at your own risk as it may break SDK functionalities -->
-        <app.filtering.enabled>true</app.filtering.enabled>
-	    
+
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- Properties used in dependency declarations, you don't need to change these -->
         <alfresco.groupId>org.alfresco</alfresco.groupId>
-       	<maven.alfresco.edition>community</maven.alfresco.edition>
+
+        <!-- Alfresco Share webapp version, this is the original Alfresco webapp that will be
+            customized and then deployed and run by the tomcat maven plugin when
+            executing for example $ mvn clean install alfresco:run -->
+        <alfresco.share.version>5.2.f</alfresco.share.version>
+
+        <!-- Default is to run with a Community edition, change to 'enterprise' if using Enterprise edition -->
+        <maven.alfresco.edition>community</maven.alfresco.edition>
+
+        <!-- Alfresco Surf version, if you change Share version you might need to change Surf version -->
+        <alfresco.surf.version>6.11</alfresco.surf.version>
+
+        <!-- Since alfresco.war (i.e. the Platform/Repository) is already running on port 8080, we run Share.WAR on port 8081.
+            If Alfresco Platform is not running, then generate a platform-jar-module and start it up. -->
+        <maven.tomcat.port>8081</maven.tomcat.port>
+
+        <!-- JRebel Hot reloading of classpath stuff and web resource stuff -->
+        <jrebel.version>1.1.6</jrebel.version>
+
+        <!-- Compile with Java 7, default is 5 -->
+		<timestamp>${maven.build.timestamp}</timestamp>
+		<maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>        
        	<maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-		
-		<timestamp>${maven.build.timestamp}</timestamp>
-		<maven.build.timestamp.format>yyyyMMdd.HHmmss</maven.build.timestamp.format>
         <!-- Alfresco Share Community 5.2 -->
         <servlet-api.version>2.5</servlet-api.version>
     </properties>
-  
-	    
-    <dependencyManagement>
-        <dependencies>
-           <!-- Redefine the following Share dependencies as they have different
-                version numbers than platform. They are defined in alfresco-platform-distribution... -->
-            <dependency>
-                <groupId>${alfresco.groupId}</groupId>
-                <artifactId>share</artifactId>
-                <version>${alfresco.share.version}</version>
-                <type>war</type>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${alfresco.groupId}</groupId>
-                <artifactId>share</artifactId>
-                <version>${alfresco.share.version}</version>
-                <classifier>classes</classifier>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${alfresco.groupId}</groupId>
-                <artifactId>alfresco-web-framework-commons</artifactId>
-                <version>${alfresco.share.version}</version>
-                <classifier>classes</classifier>
-                <scope>provided</scope>
-            </dependency>
 
-            <!-- Redefine the following surf dependencies as they have no resolvable
-                version in the alfresco-platform-distribution artifact -->
-            <dependency>
-                <groupId>org.alfresco.surf</groupId>
-                <artifactId>spring-surf</artifactId>
-                <version>${alfresco.surf.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.alfresco.surf</groupId>
-                <artifactId>spring-surf-api</artifactId>
-                <version>${alfresco.surf.version}</version>
-                <scope>provided</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-    
     <dependencies>
+        <!-- Following dependencies are needed for compiling Java code in src/main/java -->
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>share</artifactId>
+            <version>${alfresco.share.version}</version>
             <classifier>classes</classifier>
+            <scope>provided</scope>
         </dependency>
-        <!--  
+
         <dependency>
             <groupId>org.alfresco.surf</groupId>
             <artifactId>spring-surf-api</artifactId>
             <version>${alfresco.surf.version}</version>
             <scope>provided</scope>
         </dependency>
-        -->
-        <dependency>
-            <groupId>org.alfresco.surf</groupId>
-            <artifactId>spring-surf-api</artifactId>
-        </dependency>
-        <dependency>
-			<groupId>${alfresco.groupId}</groupId>
-			<artifactId>alfresco-share-services</artifactId>
-			<version>${alfresco.share.version}</version>
-			<classifier>classes</classifier>
-		</dependency>
-        
-        <!--===============================================================
-             The following dependencies are needed to be able to compile the
-             custom functional tests that are based on Page Objects (PO)
-             ===============================================================-->
-
-        <!-- Bring in the Share Page Objects (PO) used in our functional tests.
-             It contains page objects such as LoginPage and it also brings
-             in selenium-grid and selenium. -->
-        <!-- 
-        <dependency>
-            <groupId>${alfresco.groupId}</groupId>
-            <artifactId>share-po</artifactId>
-            <version>${alfresco.version}</version>
-            <scope>test</scope>
-        </dependency>
-        -->
-        <!-- Bring in the Share Page Object (PO) Tests that comes with Alfresco. It has
-             the org.alfresco.po.share.AbstractTest class that our custom tests extend. -->
-        <!-- 
-        <dependency>
-            <groupId>${alfresco.groupId}</groupId>
-            <artifactId>share-po</artifactId>
-            <version>${alfresco.version}</version>
-            <classifier>tests</classifier>
-        	<scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-java</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.seleniumhq.selenium</groupId>
-                    <artifactId>selenium-server</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        -->
-        <!-- Test NG is defined with test scope in share-po, so need it here too -->
-        <!-- Alfresco code creates a wrapper around Test NG -->
-        <!--
-        <dependency>
-            <groupId>org.alfresco.test</groupId>
-            <artifactId>alfresco-testng</artifactId>
-            <version>1.1</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        -->
     </dependencies>
-    
+
     <build>
-   	    <pluginManagement>
-		  	<plugins>
-			  	<plugin>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.6</version>
-					<executions>
-					    <execution>
-					        <id>build-amp-file</id>
-					        <phase>package</phase>
-					        <goals>
-					            <goal>single</goal>
-					        </goals>
-					        <configuration>
-					            <appendAssemblyId>false</appendAssemblyId>
-					            <descriptor>src/main/assembly/amp.xml</descriptor>
-					        </configuration>
-					    </execution>
-					</executions>
-					<configuration>
-					    <appendAssemblyId>false</appendAssemblyId>
-					    <descriptor>src/main/assembly/amp.xml</descriptor>
-					</configuration>
-					<dependencies>
-					    <dependency>
-					        <groupId>org.alfresco.maven.plugin</groupId>
-					        <artifactId>alfresco-maven-plugin</artifactId>
-					        <version>${alfresco.sdk.version}</version>
-					    </dependency>
-					</dependencies>
-			   </plugin>	
-		  	  <plugin>
+        <plugins>
+            <!--
+                The Alfresco Maven Plugin contains all the logic to run the extension
+                in an embedded Tomcat with the H2 database.
+                -->
+            <plugin>
                 <groupId>org.alfresco.maven.plugin</groupId>
                 <artifactId>alfresco-maven-plugin</artifactId>
                 <version>${alfresco.sdk.version}</version>
@@ -227,155 +98,158 @@
                     </shareModules>
                 </configuration>
             </plugin>
-		      <plugin>
-		        <groupId>org.apache.maven.plugins</groupId>
-		        <artifactId>maven-release-plugin</artifactId>
-		        <version>2.5.3</version>
-		        <configuration>
-		          <goals>deploy</goals>
-		          <tagNameFormat>@{project.version}</tagNameFormat>
-		        </configuration>
-		      </plugin>
-		      
-		      <plugin>
-		          <groupId>org.apache.maven.plugins</groupId>
-		          <artifactId>maven-resources-plugin</artifactId>
-		          <version>3.0.1</version>
-		          <configuration>
-		              <encoding>UTF-8</encoding>
-		              <nonFilteredFileExtensions> <!-- jpg, jpeg, gif, bmp and png are added automatically -->
-		                  <nonFilteredFileExtension>ftl</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>acp</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>svg</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>doc</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>docx</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>xls</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>ppt</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>pptx</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>bin</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>lic</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>swf</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>zip</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>msg</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>jar</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>eot</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>woff</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>css</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>ico</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>psd</nonFilteredFileExtension>
-		                  <nonFilteredFileExtension>js</nonFilteredFileExtension>
-		              </nonFilteredFileExtensions>
-		          </configuration>
-		        </plugin>
-		        <!-- Compress JavaScript files and store as *-min.js -->
-		         	          
-	            <plugin>
-	                <groupId>net.alchim31.maven</groupId>
-	                <artifactId>yuicompressor-maven-plugin</artifactId>
-	                <version>1.5.1</version>
-	                <executions>
-						<execution>
-							<goals>
-								<goal>compress</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<jswarn>false</jswarn>
-						<force>true</force>
-						<excludes>
-							<exclude>**/*.post.js</exclude>
-							<exclude>**/*.lib.js</exclude>
-							<exclude>**/*.get.js</exclude>
-							<exclude>**/*-min.js</exclude>
-							<exclude>**/WEB-INF/**</exclude>
-							<exclude>**/tiny_mce/**</exclude>
-							<exclude>**/yui/**</exclude>
-							<exclude>**/log4javascript*.js</exclude>					
-				            <exclude>**/site-webscripts/**/*.js</exclude>
-				            <exclude>**/alfresco/templates/**/*.js</exclude>
-						</excludes>
-					</configuration>
-	            </plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											net.alchim31.maven
-										</groupId>
-										<artifactId>
-											yuicompressor-maven-plugin
-										</artifactId>
-										<versionRange>
-											[1.2,)
-										</versionRange>
-										<goals>
-											<goal>compress</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore />
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>				
-		  	</plugins>
-	  	</pluginManagement>
 
-	   	<!-- Overrinding Resources of parent pom -->
-	   	<!--
-		This is done by the maven-resources-plugin and configured in <build> / <resources>. 
-		Each <resource> definition in there has a <filtered>true|false</filtered> option that 
-		controls whether maven should replace properties like ${project.artifactId} when copying 
-		the resources over or not.
-		-->
-		<resources>
-			<!-- Filter the resource files in this project and do property substitutions -->
-		    <!--
-		    <resource>
+            <!-- Build an AMP if 3rd party libs are needed by the extension -->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>build-amp-file</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptor>src/main/assembly/amp.xml</descriptor>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.alfresco.maven.plugin</groupId>
+                        <artifactId>alfresco-maven-plugin</artifactId>
+                        <version>${alfresco.sdk.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <!-- Hot reloading with JRebel -->
+            <plugin>
+                <groupId>org.zeroturnaround</groupId>
+                <artifactId>jrebel-maven-plugin</artifactId>
+                <version>${jrebel.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-rebel-xml</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <!-- For more information about how to configure JRebel plugin see:
+                         http://manuals.zeroturnaround.com/jrebel/standalone/maven.html#maven-rebel-xml -->
+                    <classpath>
+                        <fallback>all</fallback>
+                        <resources>
+                            <resource>
+                                <!--
+                                Empty resource element marks default configuration. By
+                                default it is placed first in generated configuration.
+                                -->
+                            </resource>
+                        </resources>
+                    </classpath>
+
+                    <!--
+                      alwaysGenerate - default is false
+                      If 'false' - rebel.xml is generated if timestamps of pom.xml and the current rebel.xml file are not equal.
+                      If 'true' - rebel.xml will always be generated
+                    -->
+                    <alwaysGenerate>true</alwaysGenerate>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <nonFilteredFileExtensions> <!-- jpg, jpeg, gif, bmp and png are added automatically -->
+                        <nonFilteredFileExtension>ftl</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>acp</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>svg</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>doc</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>docx</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>xls</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>xlsx</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>ppt</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>pptx</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>bin</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>lic</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>swf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>zip</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>msg</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>jar</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>eot</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>css</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>ico</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>psd</nonFilteredFileExtension>
+                        <nonFilteredFileExtension>js</nonFilteredFileExtension>
+                    </nonFilteredFileExtensions>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <!-- Filter the resource files in this project and do property substitutions -->
+            <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
-            -->
-			<!-- Esclusione file autogenerati da Eclipse e Esclusione file che utilizzano marcatori simili a quelli usati da maven  -->						
-			<resource>
-				<directory>src/main/resources</directory>
-				<targetPath>${project.build.directory}</targetPath>
-				<filtering>true</filtering>
-				<excludes>					
-					<exclude>**/*.jsfdia</exclude>
-					<exclude>**/*.ftl</exclude>
-					<exclude>**/*.jasper</exclude>
-					<exclude>**/*.ks</exclude>
-					<exclude>**/*.png</exclude>					
-				</excludes>
-			</resource>
-			<!-- Inclusione delle risorse che utilizzano marcatori simili a quelli usati da maven mettendo il filtering a false, cosi' i tag non vengono rimpiazzati -->			 
-			<resource>
-				<directory>src/main/resources</directory>
-				<targetPath>${project.build.directory}</targetPath>
-				<filtering>false</filtering>
-				<includes>
-					<include>**/*.ftl</include>
-					<include>**/*.jasper</include>
-					<include>**/*.ks</include>
-					<include>**/*.png</include>
-				</includes>
-			</resource>
-		</resources>
+        </resources>
+        <testResources>
+            <!-- Filter the test resource files in this project and do property substitutions -->
+            <testResource>
+                <directory>src/test/resources</directory>
+                <filtering>true</filtering>
+            </testResource>
+        </testResources>
     </build>
-    
+
+    <!--
+        Alfresco Maven Repositories
+        -->
+    <repositories>
+        <repository>
+            <id>alfresco-public</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>alfresco-public-snapshots</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+        <!-- Alfresco Enterprise Edition Artifacts, put username/pwd for server in settings.xml -->
+        <repository>
+            <id>alfresco-private-repository</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>alfresco-plugin-public</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>alfresco-plugin-public-snapshots</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
 </project>
