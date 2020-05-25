@@ -38,7 +38,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Signature</id>
 			<description>Expose the signature action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -81,7 +81,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Watermark</id>
 			<description>Expose the watermark action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -124,7 +124,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Append</id>
 			<description>Expose the append action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -168,7 +168,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<description>Expose the collate action doclib action UI</description>
 			<version>${project.version}</version>
 			<!-- Auto deploy set to true: Loftux-->
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<configurations>
 				<config evaluator="string-compare" condition="DocLibActions">
 					<actions>
@@ -204,7 +204,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Encryption</id>
 			<description>Expose the encryption action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -247,7 +247,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Decryption</id>
 			<description>Expose the decryption action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -290,7 +290,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Insert at Page</id>
 			<description>Expose the insert at page action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -333,7 +333,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Split</id>
 			<description>Expose the split action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -376,7 +376,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Split at Page</id>
 			<description>Expose the split at page action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -419,7 +419,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Delete Page</id>
 			<description>Expose the delete page action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -462,7 +462,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Extract Page</id>
 			<description>Expose the extract page action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -505,7 +505,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Rotate Page</id>
 			<description>Expose the rotate pages action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -548,7 +548,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Actions UI - Transform to PDF/A</id>
 			<description>Expose the PDF/A transformation action doclib action UI</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -594,7 +594,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Form Config Extension</id>
 			<description>Form config for PDF toolkit</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
@@ -1084,7 +1084,7 @@ allowNavigationToContentChildren 	boolean False 		Determines whether the picker 
 			<id>PDF Toolkit Advanced Search Extension</id>
 			<description>Advanced Search for PDF toolkit</description>
 			<version>${project.version}</version>
-			<auto-deploy>true</auto-deploy>
+			<auto-deploy>false</auto-deploy>
 			<evaluator type="site.module.evaluator">
 				<params>
 					<sites>.*</sites>
